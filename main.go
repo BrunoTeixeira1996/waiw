@@ -59,12 +59,6 @@ func startServer(currentPath string) error {
 
 // Function that handles the errors
 func run() error {
-	// TODO:
-	// - Create tables for db
-	// - Create struct to handle sqlite
-	// - Get the sqlite db path
-	// - Insert dummy data into the db
-	// - Visualize data in website
 
 	currentPath, err := os.Getwd()
 	if err != nil {
