@@ -13,7 +13,7 @@ Go webserver to store movies/series ratings by me and my gf
       | id | rating |
 
 	- user table
-	  | id | name |
+	  | id | username |
 
 	- movie_rating table
 	  | id | movie_id | user_id | rating_id | comments |
@@ -25,3 +25,13 @@ Go webserver to store movies/series ratings by me and my gf
 - Create `uploadmovie` endpoint to upload a movie
   - Create a form and upload to db
   - The image will be saved in a `images` folder with a random generated name and that name will be saved in the database
+
+
+## Useful stuff
+
+- Use `create_db.sql` to create a clean dummy database
+
+```console
+$ cat create_db.sql | sqlite3 database.db
+```
+
