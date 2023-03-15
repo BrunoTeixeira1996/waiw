@@ -4,7 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Create movie/<movie_id> page ()
+- [] Create movie/<movie_id> page (https://i.imgur.com/O6GyAM4.png)
   - When press movie image in `movies` endpoint navigate to this page `movie/<movie_id>`
 - [] Connect with go into db
 - [] Visualize data from db in website
