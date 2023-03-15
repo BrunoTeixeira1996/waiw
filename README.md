@@ -1,13 +1,23 @@
 # What Am I Watching?
 
-Go webserver to store movies/series ratings by me and my gf
+Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- Create tables for db
+- [] Create movie/<movie_id> page ()
+  - When press movie image in `movies` endpoint navigate to this page `movie/<movie_id>`
+- [] Connect with go into db
+- [] Visualize data from db in website
+- [] Create `uploadmovie` endpoint to upload a movie
+  - Create a form and upload to db
+  - The image will be saved in a `images` folder with a random generated name and that name will be saved in the database
 
+
+# DONE
+
+- [X] Create tables for db
 	- movies table
-      | id | title | image | sinopse | launch_date | imdb_rating | rottentomatoes_rating | view_date |
+      | id | title | image | sinopse | genre | imdb_rating | launch_date | view_date |
 
 	- rating table
       | id | rating |
@@ -18,14 +28,9 @@ Go webserver to store movies/series ratings by me and my gf
 	- movie_rating table
 	  | id | movie_id | user_id | rating_id | comments |
 
-- Connect with go into db
-- Insert dummy data into the db
-- Visualize data in website
-
-- Create `uploadmovie` endpoint to upload a movie
-  - Create a form and upload to db
-  - The image will be saved in a `images` folder with a random generated name and that name will be saved in the database
-
+- [X] Insert dummy data into the db
+- [X] Build css and html base
+- [X] Use dummy data to check if backend and frontend are communicating
 
 ## Useful stuff
 
