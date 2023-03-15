@@ -12,14 +12,14 @@ type Page struct {
 }
 
 type Movie struct {
-	Id                    int
-	Title                 string
-	Image                 string
-	Sinopse               string
-	Imdb_Rating           string
-	RottenTomatoes_Rating string
-	Launch_Date           string
-	View_Date             string
+	Id          int
+	Title       string
+	Image       string
+	Sinopse     string
+	Genre       string
+	Imdb_Rating string
+	Launch_Date string
+	View_Date   string
 }
 
 // Handles "/"
@@ -38,64 +38,64 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 		movies := &[]Movie{
 			Movie{
-				Id:                    1,
-				Title:                 "1",
-				Image:                 "1",
-				Sinopse:               "1",
-				Imdb_Rating:           "1",
-				RottenTomatoes_Rating: "1",
-				Launch_Date:           "1",
-				View_Date:             "1",
+				Id:          1,
+				Title:       "1",
+				Image:       "1",
+				Sinopse:     "1",
+				Genre:       "1",
+				Imdb_Rating: "1",
+				Launch_Date: "1",
+				View_Date:   "1",
 			},
 			Movie{
-				Id:                    2,
-				Title:                 "2",
-				Image:                 "2",
-				Sinopse:               "2",
-				Imdb_Rating:           "2",
-				RottenTomatoes_Rating: "2",
-				Launch_Date:           "2",
-				View_Date:             "2",
+				Id:          2,
+				Title:       "2",
+				Image:       "2",
+				Sinopse:     "2",
+				Genre:       "2",
+				Imdb_Rating: "2",
+				Launch_Date: "2",
+				View_Date:   "2",
 			},
 			Movie{
-				Id:                    3,
-				Title:                 "3",
-				Image:                 "3",
-				Sinopse:               "3",
-				Imdb_Rating:           "3",
-				RottenTomatoes_Rating: "3",
-				Launch_Date:           "3",
-				View_Date:             "3",
+				Id:          3,
+				Title:       "3",
+				Image:       "3",
+				Sinopse:     "3",
+				Genre:       "3",
+				Imdb_Rating: "3",
+				Launch_Date: "3",
+				View_Date:   "3",
 			},
 			Movie{
-				Id:                    3,
-				Title:                 "3",
-				Image:                 "3",
-				Sinopse:               "3",
-				Imdb_Rating:           "3",
-				RottenTomatoes_Rating: "3",
-				Launch_Date:           "3",
-				View_Date:             "3",
+				Id:          3,
+				Title:       "3",
+				Image:       "3",
+				Sinopse:     "3",
+				Genre:       "3",
+				Imdb_Rating: "3",
+				Launch_Date: "3",
+				View_Date:   "3",
 			},
 			Movie{
-				Id:                    4,
-				Title:                 "4",
-				Image:                 "4",
-				Sinopse:               "4",
-				Imdb_Rating:           "4",
-				RottenTomatoes_Rating: "4",
-				Launch_Date:           "4",
-				View_Date:             "4",
+				Id:          4,
+				Title:       "4",
+				Image:       "4",
+				Sinopse:     "4",
+				Genre:       "4",
+				Imdb_Rating: "4",
+				Launch_Date: "4",
+				View_Date:   "4",
 			},
 			Movie{
-				Id:                    5,
-				Title:                 "5",
-				Image:                 "5",
-				Sinopse:               "5",
-				Imdb_Rating:           "5",
-				RottenTomatoes_Rating: "5",
-				Launch_Date:           "5",
-				View_Date:             "5",
+				Id:          5,
+				Title:       "5",
+				Image:       "5",
+				Sinopse:     "5",
+				Genre:       "5",
+				Imdb_Rating: "5",
+				Launch_Date: "5",
+				View_Date:   "5",
 			},
 		}
 
