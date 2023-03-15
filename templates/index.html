@@ -1,13 +1,18 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
-<div class="container ">
-<div class="d-flex justify-content-center p-5">
-  <!-- <img class="mt-5" src="assets/kb.jpg" alt="icon" style="width:350px"> -->
-  </div>
-  <div class="d-flex justify-content-center text-center p-5">
-    <h1>What am I watching ???<h1/>
-    </div>
+<div class="jumbotron" style="padding: 1em; padding-right: 0; padding-left: 2em; text-align: left">
+  <h2>What Am I Watching is a simple webserver to save ratings about stupid movies and series</h2>
+  <p>
+    This was done because I didn't found anything realy similar that let me save movies/series rating.
+  </p>
+  <p>
+    All web apps that provided a similar behavior were public and the idea here is to save ratings and comments between me and my gf.
+  </p>
+  <p>
+    Knowing this, I've built a simple go application that I then self host and every time we see a stupid movie/serie we add
+    our ratings so we can then laugh about how bad some movies/series are
+  </p>
 </div>
 
 {{ end }}

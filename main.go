@@ -31,11 +31,14 @@ func startServer(currentPath string) error {
 
 	baseTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/index.html"))
 	moviesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/movies.html"))
+	seriesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/series.html"))
+
 	fs := http.FileServer(http.Dir("assets"))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", utils.IndexHandle(baseTemplate))
-	mux.HandleFunc("/movies", utils.IndexHandle(moviesTemplate))
+	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate))
+	mux.HandleFunc("/series", utils.SeriesHandle(seriesTemplate))
 
 	httpServer := &http.Server{
 		Addr:    "127.0.0.1:8080",
