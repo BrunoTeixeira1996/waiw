@@ -3,8 +3,8 @@ id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
 image VARCHAR,
 sinopse VARCHAR,
+genre VARCHAR,
 imdb_rating VARCHAR,
-rottentomatoes_rating VARCHAR,
 launch_date INTEGER,
 view_date INTEGER NOT NULL);
 
@@ -29,9 +29,9 @@ FOREIGN KEY(movie_id) REFERENCES movie(id),
 FOREIGN KEY(user_id) REFERENCES user(id),
 FOREIGN KEY(rating_id) REFERENCES rating(id));
 
-INSERT INTO movies VALUES(1,'Movie1','image_path','sinopse1', '1','1', 1, 1);
-INSERT INTO movies VALUES(2,'Movie2','image_path','sinopse2', '2','2', 2, 2);
-INSERT INTO movies VALUES(3,'Movie3','image_path','sinopse3', '3','3', 3, 3);
+INSERT INTO movies VALUES(1,'Movie1','image_path','sinopse1','romance','1', 1, 1);
+INSERT INTO movies VALUES(2,'Movie2','image_path','sinopse2', 'horror','2', 2, 2);
+INSERT INTO movies VALUES(3,'Movie3','image_path','sinopse3', 'romance','3',3, 3);
 
 INSERT INTO rating VALUES(1,'Very very bad');
 INSERT INTO rating VALUES(2,'Very bad');
