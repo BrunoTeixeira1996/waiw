@@ -16,13 +16,13 @@ func (c *Db) Connect() error {
 }
 
 // Query database
-func (c *Db) QueryAllFromMovies(q string, movies *[]Movie) error {
+func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error {
 	if err := c.Connect(); err != nil {
 		return err
 	}
 	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q); c.Err != nil {
+	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
 		return fmt.Errorf("Error while doing query: %w", c.Err)
 	}
 

@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"html/template"
-	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 )
@@ -20,11 +21,24 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 // Handles "/movies"
 func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var movies []models.Movie
+	var movies []models.Movie
 
-		if err := db.QueryAllFromMovies("select * from movies", &movies); err != nil {
-			log.Fatal("Error while handling QueryAllFromMovies")
+	return func(w http.ResponseWriter, r *http.Request) {
+		movieId := r.URL.Query().Get("id")
+
+		// List respective movie
+		if movieId != "" {
+			if regexp.MustCompile(`\d`).MatchString(movieId) {
+				if err := db.QueryAllFromMovies("select * from movies where id = ?", &movies, movieId); err != nil {
+					fmt.Printf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
+				}
+			}
+
+		} else {
+			// List all movies
+			if err := db.QueryAllFromMovies("select * from movies", &movies); err != nil {
+				fmt.Println("Error while handling QueryAllFromMovies")
+			}
 		}
 
 		page := models.Page{
@@ -32,6 +46,10 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			Any:   movies,
 		}
 		baseTemplate.Execute(w, page)
+
+		// Since I am using a pointer, I need to clean this slice
+		// or there will be dups
+		movies = nil
 	}
 }
 

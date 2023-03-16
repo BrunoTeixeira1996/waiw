@@ -2,18 +2,17 @@
 {{ define "content" }}
 
 <div id="content-listing">
-  {{ range $element := .Any }}
+  {{ range $movie := .Any }}
   <div class="item-poster">
-    <a title="{{ $element.Title }}" href="/assets/a.jpg"> <img src="/assets/a.jpg" alt=""></a>
+    <a title="{{ $movie.Title }}" href="/assets/a.jpg"> <img src="/assets/a.jpg" alt=""></a>
     <div class="infos">
-      <code> Title </code>
-      <span> Rating  </span>
-      <span> Type </span>
-      <div class="y">Year</div>
+      <code> {{ $movie.Title }} </code>
+      <span> {{ $movie.Imdb_Rating }}  </span>
+      <span> {{ $movie.Genre }} </span>
+      <div class="y">{{ $movie.Launch_Date }}</div>
     </div>
     </div>
   {{ end }}
 </div>
-
 
 {{ end }}
