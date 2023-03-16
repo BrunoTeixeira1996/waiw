@@ -34,6 +34,7 @@ func startServer(currentPath string) error {
 
 	baseTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/index.html"))
 	moviesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/movies.html"))
+	movieTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/movie.html"))
 	seriesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/series.html"))
 
 	fs := http.FileServer(http.Dir("assets"))
@@ -41,6 +42,7 @@ func startServer(currentPath string) error {
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", utils.IndexHandle(baseTemplate))
 	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate, db))
+	mux.HandleFunc("/movie", utils.MoviesHandle(movieTemplate, db))
 	mux.HandleFunc("/series", utils.SeriesHandle(seriesTemplate))
 
 	httpServer := &http.Server{

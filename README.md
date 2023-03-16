@@ -4,7 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Create movie/<movie_id> page (https://i.imgur.com/O6GyAM4.png)
+- [] Create movie.html page (https://i.imgur.com/O6GyAM4.png)
   - [X] When press movie image in `movies` endpoint navigate to this page `movie?id=<movie_id>`
 - [] Create `uploadmovie` endpoint to upload a movie
   - Create a form and upload to db

@@ -1,4 +1,83 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
+{{ range $movie := .Any }}
+    <div class="container">
+        <div class="jumbotron" style="padding: 1em; padding-right: 37px; padding-left: 2em; text-align: left; height: 210px">
+        <img src="/assets/a.jpg" align="right">
+        <h2> {{ $movie.Title }}</h2>
+	<p>
+	  Jessica, a single parent, owner of a struggling diner, finds the inspiration she needed when her high school boyfriend, Chase, a professional baseball player returns to town.
+	</p>
+      </div>
+
+        <div class="col-lg-6">
+          <h4>Sinopse</h4>
+	  <p>
+	   Jessica, a single parent, owner of a struggling diner, finds the inspiration she needed when her high school boyfriend, Chase, a professional baseball player returns to town.
+	  </p>
+
+          <h4>Genre</h4>
+	  <p>
+	    {{ $movie.Genre }}
+	  </p>
+
+          <h4>Imdb_Rating</h4>
+	  <p>
+	  <code>{{ $movie.Imdb_Rating }}</code>
+	  </p>
+
+	  <h4>Launch Date</h4>
+	  <p>
+	    {{ $movie.Launch_Date }}
+	  </p>
+
+	  <h4>View Date</h4>
+	  <p>
+	    {{ $movie.View_Date }}
+	  </p>
+	</div>
+
+        <div class="col-lg-6">
+          <h4>Comments</h4>
+	  <p>
+	    GATHER COMMENTS HERE
+	  </p>
+
+	  <h4>Ratings</h4>
+	  <p>
+	    GATHER RATINGS HERE
+	  </p>
+        </div>
+	
+    </div>
+    {{ end }}
+
+<div class ="container">
+   <article class="media content-section" id="group_1">
+        <form method="POST" id="save_comments">
+        <div class="form-group p-3">
+            <label for="exampleFormControlTextarea1">Comment</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3"></textarea>
+        </div>
+
+        <fieldset id="group">
+          <div class="form-check form-check-inline">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Bruno">
+	    <label class="form-check-label" for="radio_1">Bruno</label>
+          </div>
+          <div class="form-check form-check-inline">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Rafaela">
+	    <label class="form-check-label" for="radio_1">Rafaela</label>
+          </div>
+        </fieldset>
+    </div>
+</article>
+</form>
+
+<div class="form-group pull-right">
+    <button onclick="check_radio_buttons();"  class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
+</div>
+
+</div>
 {{ end }}
