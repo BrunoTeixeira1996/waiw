@@ -27,4 +27,18 @@ type Movie struct {
 	Imdb_Rating string
 	Launch_Date string
 	View_Date   string
+	MovieRating []MovieRating
+}
+
+// Struct that represents an user
+type User struct {
+	Id       int
+	Username string
+}
+
+// Struct that represents Movie Rating
+type MovieRating struct {
+	UserName string
+	Rating   string
+	Comments string
 }

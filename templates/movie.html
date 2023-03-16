@@ -65,15 +65,16 @@ function check_radio_buttons(){
 	</div>
 
         <div class="col-lg-6">
-          <h4>Comments</h4>
+          <h4>{{ (index $movie.MovieRating 0).UserName }} Comments / Rating</h4>
 	  <p>
-	    GATHER COMMENTS HERE
+	    {{ (index $movie.MovieRating 0).Comments }} / <code> {{ (index $movie.MovieRating 0).Rating }}</code>
 	  </p>
 
-	  <h4>Ratings</h4>
+	  <h4>{{ (index $movie.MovieRating 1).UserName }} Comments / Rating</h4>
 	  <p>
-	    GATHER RATINGS HERE
+	   {{ (index $movie.MovieRating 1).Comments }} / <code> {{ (index $movie.MovieRating 1).Rating }} </code>
 	  </p>
+
         </div>
 	
     </div>

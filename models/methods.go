@@ -15,7 +15,7 @@ func (c *Db) Connect() error {
 	return nil
 }
 
-// Query database
+// Query all info from movies
 func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error {
 	if err := c.Connect(); err != nil {
 		return err
@@ -42,6 +42,33 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 		}
 
 		*movies = append(*movies, m)
+	}
+
+	return nil
+}
+
+// Query all info from ratings
+func (c *Db) QueryAllFromRatings(q string, ratings *[]MovieRating, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while doing query: %w", c.Err)
+	}
+
+	for c.Rows.Next() {
+		var rating MovieRating
+		if c.Err = c.Rows.Scan(
+			&rating.UserName,
+			&rating.Rating,
+			&rating.Comments,
+		); c.Err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		}
+
+		*ratings = append(*ratings, rating)
 	}
 
 	return nil
