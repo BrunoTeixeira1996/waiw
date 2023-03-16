@@ -89,6 +89,10 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			baseTemplate.Execute(w, page)
 		}
 
+		// Since I am using a pointer, I need to clean this slice
+		// or there will be dups
+		movies = nil
+		ratings = nil
 	}
 }
 
