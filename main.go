@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/BrunoTeixeira1996/waiw/models"
 	"github.com/BrunoTeixeira1996/waiw/utils"
 )
 
@@ -22,6 +23,8 @@ func handleExit(exit chan bool) {
 
 // Starts the web server
 func startServer(currentPath string) error {
+	// Prepare database
+	db := &models.Db{}
 
 	// Handle exit
 	exit := make(chan bool)
@@ -37,7 +40,7 @@ func startServer(currentPath string) error {
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", utils.IndexHandle(baseTemplate))
-	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate))
+	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate, db))
 	mux.HandleFunc("/series", utils.SeriesHandle(seriesTemplate))
 
 	httpServer := &http.Server{
@@ -82,3 +85,7 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+// func main() {
+// 	utils.DbDEBUG()
+// }

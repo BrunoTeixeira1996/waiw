@@ -2,30 +2,16 @@ package utils
 
 import (
 	"html/template"
+	"log"
 	"net/http"
+
+	"github.com/BrunoTeixeira1996/waiw/models"
 )
-
-// Struct that represents a webpage
-type Page struct {
-	Title string
-	Any   any
-}
-
-type Movie struct {
-	Id          int
-	Title       string
-	Image       string
-	Sinopse     string
-	Genre       string
-	Imdb_Rating string
-	Launch_Date string
-	View_Date   string
-}
 
 // Handles "/"
 func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := Page{
+		page := models.Page{
 			Title: "Home",
 		}
 		baseTemplate.Execute(w, page)
@@ -33,74 +19,16 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 }
 
 // Handles "/movies"
-func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
+func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var movies []models.Movie
 
-		movies := &[]Movie{
-			Movie{
-				Id:          1,
-				Title:       "1",
-				Image:       "1",
-				Sinopse:     "1",
-				Genre:       "1",
-				Imdb_Rating: "1",
-				Launch_Date: "1",
-				View_Date:   "1",
-			},
-			Movie{
-				Id:          2,
-				Title:       "2",
-				Image:       "2",
-				Sinopse:     "2",
-				Genre:       "2",
-				Imdb_Rating: "2",
-				Launch_Date: "2",
-				View_Date:   "2",
-			},
-			Movie{
-				Id:          3,
-				Title:       "3",
-				Image:       "3",
-				Sinopse:     "3",
-				Genre:       "3",
-				Imdb_Rating: "3",
-				Launch_Date: "3",
-				View_Date:   "3",
-			},
-			Movie{
-				Id:          3,
-				Title:       "3",
-				Image:       "3",
-				Sinopse:     "3",
-				Genre:       "3",
-				Imdb_Rating: "3",
-				Launch_Date: "3",
-				View_Date:   "3",
-			},
-			Movie{
-				Id:          4,
-				Title:       "4",
-				Image:       "4",
-				Sinopse:     "4",
-				Genre:       "4",
-				Imdb_Rating: "4",
-				Launch_Date: "4",
-				View_Date:   "4",
-			},
-			Movie{
-				Id:          5,
-				Title:       "5",
-				Image:       "5",
-				Sinopse:     "5",
-				Genre:       "5",
-				Imdb_Rating: "5",
-				Launch_Date: "5",
-				View_Date:   "5",
-			},
+		if err := db.QueryAllFromMovies("select * from movies", &movies); err != nil {
+			log.Fatal("Error while handling QueryAllFromMovies")
 		}
 
-		page := Page{
-			Title: "Movies",
+		page := models.Page{
+			Title: "models.Movies",
 			Any:   movies,
 		}
 		baseTemplate.Execute(w, page)
@@ -110,7 +38,7 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 // Handles "/movies"
 func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := Page{
+		page := models.Page{
 			Title: "Series",
 		}
 		baseTemplate.Execute(w, page)
