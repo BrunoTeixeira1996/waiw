@@ -1,6 +1,32 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
+
+<script>
+function check_comment(){
+    $(`form`).on('submit',(e)=>{
+	if (!$.trim($("textarea").val())) {
+	$(`.flag`).text("Insert a comment").addClass("alert alert-danger")
+	e.preventDefault();
+      }
+  });
+}
+
+function check_radio_buttons(){
+    $(`form`).on('submit',(e)=>{
+	$(`input[type="radio"]`).each(function(){
+            var name = $(this).attr("name");
+            if($(`input:radio[name="${name}"]:checked`).length == 0){
+		console.log("asd");
+                $(`.flag`).text("Choose Bruno or Rafaela").addClass("alert alert-danger")
+                e.preventDefault();
+            }
+        });
+    });
+}
+
+</script>
+
 {{ range $movie := .Any }}
     <div class="container">
         <div class="jumbotron" style="padding: 1em; padding-right: 37px; padding-left: 2em; text-align: left; height: 210px">
@@ -58,25 +84,27 @@
         <form method="POST" id="save_comments">
         <div class="form-group p-3">
             <label for="exampleFormControlTextarea1">Comment</label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3"></textarea>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1"></textarea>
         </div>
 
         <fieldset id="group">
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Bruno">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="bruno">
 	    <label class="form-check-label" for="radio_1">Bruno</label>
           </div>
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Rafaela">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="rafaela">
 	    <label class="form-check-label" for="radio_1">Rafaela</label>
           </div>
         </fieldset>
-    </div>
+</div>
+<p class="flag"></p>
+
 </article>
 </form>
 
 <div class="form-group pull-right">
-    <button onclick="check_radio_buttons();"  class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
+    <button onclick="check_radio_buttons(); check_comment();" class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
 </div>
 
 </div>
