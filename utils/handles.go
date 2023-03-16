@@ -74,7 +74,13 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				if err := db.QueryAllFromMovies("select * from movies where id = ?", &movies, movieId); err != nil {
 					fmt.Printf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
 				}
+
+				if err := db.QueryAllFromRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = ?", &ratings, movieId); err != nil {
+					fmt.Printf("Error while QueryAllFromRatings for movie id=%s\n", movieId)
+				}
+
 			}
+			movies[0].MovieRating = ratings
 
 			page := models.Page{
 				Title: movies[0].Title,
