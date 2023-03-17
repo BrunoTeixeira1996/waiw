@@ -31,6 +31,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 - [X] Visualize data from db in website
 - [X] Create movie.html page (https://i.imgur.com/O6GyAM4.png)
   - [X] When press movie image in `movies` endpoint navigate to this page `movie?id=<movie_id>`
+- [X] Insert comments and ratings in movies
 
 ## Useful stuff
 

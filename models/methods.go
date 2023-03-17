@@ -47,7 +47,7 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 	return nil
 }
 
-// Query all info from ratings
+// Query all info about rating and comments
 func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, params ...any) error {
 	if err := c.Connect(); err != nil {
 		return err
