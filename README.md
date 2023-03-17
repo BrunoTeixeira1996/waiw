@@ -4,6 +4,10 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
+- [] Change movie?id=1 layout
+  - Use only Comments so users can give all of the comments they want
+  - Use a rating independent of the comment
+  - This way it should be easier to edit/delete comments and ratings in the future
 - [] Create `uploadmovie` endpoint to upload a movie
   - Create a form and upload to db
   - The image will be saved in a `images` folder with a random generated name and that name will be saved in the database
