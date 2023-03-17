@@ -91,6 +91,16 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 	}
 }
 
+// Handles "/upload"
+func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := models.Page{
+			Title: "Upload",
+		}
+		baseTemplate.Execute(w, page)
+	}
+}
+
 // Handles "/movies"
 func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

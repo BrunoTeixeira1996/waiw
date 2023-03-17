@@ -29,11 +29,11 @@ FOREIGN KEY(movie_id) REFERENCES movies(id),
 FOREIGN KEY(user_id) REFERENCES users(id),
 FOREIGN KEY(rating_id) REFERENCES ratings(id));
 
-INSERT INTO movies VALUES(1,'Movie1','image_path','sinopse1','romance','1', 1, 1);
-INSERT INTO movies VALUES(2,'Movie2','image_path','sinopse2', 'horror','2', 2, 2);
-INSERT INTO movies VALUES(3,'Movie3','image_path','sinopse3', 'romance','3',3, 3);
-INSERT INTO movies VALUES(4,'Movie4','image_path','sinopse4', 'romance','4',4, 4);
-INSERT INTO movies VALUES(5,'Movie5','image_path','sinopse5', 'romance','5',5, 5);
+INSERT INTO movies VALUES(1,'Movie1','image_name','sinopse1','romance','1', 1, 1);
+INSERT INTO movies VALUES(2,'Movie2','image_name','sinopse2', 'horror','2', 2, 2);
+INSERT INTO movies VALUES(3,'Movie3','image_name','sinopse3', 'romance','3',3, 3);
+INSERT INTO movies VALUES(4,'Movie4','image_name','sinopse4', 'romance','4',4, 4);
+INSERT INTO movies VALUES(5,'Movie5','image_name','sinopse5', 'romance','5',5, 5);
 
 
 INSERT INTO ratings VALUES(1,'WTF');
