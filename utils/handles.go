@@ -79,13 +79,13 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				}
 
 				// TODO: change rating_id to something correct, not hardcoded
-				// NOT WORKING
-				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES(?,?,?,?)", movieId, user.Id, 1, comments); err != nil {
+				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES (?,?,?,?)", movieId, user.Id, 1, comments); err != nil {
 					fmt.Println("Error while inserting movie comment %w", err)
 				}
 			}
 
 			http.Redirect(w, r, r.Header.Get("Referer"), 302)
+
 		}
 	}
 }

@@ -66,24 +66,18 @@ function check_radio_buttons(){
 
         <div class="col-lg-6">
 	  <h4> Comments /Ratings </h4>
-	  {{ if $movie.MovieRating }}
-	  <p>
-	    Bruno said:
-	  </p>
-	  <p>
-	    <i>{{ (index $movie.MovieRating 0).Comments }}</i> / <code> {{ (index $movie.MovieRating 0).Rating }}</code>
-	  </p>
-	  <p>
-	    Rafaela said:
-	  </p>
-	  <p>
-	    <i>{{ (index $movie.MovieRating 1).Comments }}</i> / <code> {{ (index $movie.MovieRating 1).Rating }}</code>
-	  </p>
-	  {{ else }}
-	  <p>No comments found for now / <code>No ratings found for now</code>
-	  </p>
+	  {{ $length := len $movie.MovieRating }}
+	  {{ if eq $length  0 }}
+	  <p> No comments found for now / <code> No ratings found for now </code> </p>
 	  {{ end }}
-
+	  {{ if eq $length 1 }}
+	  <p> {{ (index $movie.MovieRating 0).UserName }} said: <i>{{ (index $movie.MovieRating 0).Comments }}</i> / <code>{{ (index $movie.MovieRating 0).Rating }}</code></p>
+	  {{ end }}
+	  {{ if gt $length 1 }}
+	  {{ range $c := $movie.MovieRating }}
+	  <p> {{ $c.UserName }} said: <i>{{ $c.Comments }}</i> / <code>{{ $c.Rating }}</code></p>
+	  {{ end }}
+	  {{ end }}
         </div>
 	
     </div>

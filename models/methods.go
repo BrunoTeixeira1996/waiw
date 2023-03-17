@@ -101,8 +101,8 @@ func (c *Db) InsertMovieComments(q string, params ...any) error {
 	}
 	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while doing query: %w", c.Err)
+	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while inserting comment in movie: %w", c.Err)
 	}
 	return nil
 }
