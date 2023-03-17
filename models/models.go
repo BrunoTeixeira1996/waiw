@@ -9,6 +9,7 @@ type Db struct {
 	Con  *sql.DB
 	Err  error
 	Rows *sql.Rows
+	Row  *sql.Row
 }
 
 // Struct that represents a webpage

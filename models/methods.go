@@ -73,3 +73,36 @@ func (c *Db) QueryAllFromRatings(q string, ratings *[]MovieRating, params ...any
 
 	return nil
 }
+
+// Set user values
+func (c *Db) SetUser(q string, username string, user *User) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query(q, username); c.Err != nil {
+		return fmt.Errorf("Error while querying for user: %w", c.Err)
+	}
+
+	for c.Rows.Next() {
+		if c.Err = c.Rows.Scan(&user.Id, &user.Username); c.Err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		}
+	}
+
+	return nil
+}
+
+// Insert comments into a movie
+func (c *Db) InsertMovieComments(q string, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while doing query: %w", c.Err)
+	}
+	return nil
+}

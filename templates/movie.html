@@ -65,15 +65,24 @@ function check_radio_buttons(){
 	</div>
 
         <div class="col-lg-6">
-          <h4>{{ (index $movie.MovieRating 0).UserName }} Comments / Rating</h4>
+	  <h4> Comments /Ratings </h4>
+	  {{ if $movie.MovieRating }}
 	  <p>
-	    {{ (index $movie.MovieRating 0).Comments }} / <code> {{ (index $movie.MovieRating 0).Rating }}</code>
+	    Bruno said:
 	  </p>
-
-	  <h4>{{ (index $movie.MovieRating 1).UserName }} Comments / Rating</h4>
 	  <p>
-	   {{ (index $movie.MovieRating 1).Comments }} / <code> {{ (index $movie.MovieRating 1).Rating }} </code>
+	    <i>{{ (index $movie.MovieRating 0).Comments }}</i> / <code> {{ (index $movie.MovieRating 0).Rating }}</code>
 	  </p>
+	  <p>
+	    Rafaela said:
+	  </p>
+	  <p>
+	    <i>{{ (index $movie.MovieRating 1).Comments }}</i> / <code> {{ (index $movie.MovieRating 1).Rating }}</code>
+	  </p>
+	  {{ else }}
+	  <p>No comments found for now / <code>No ratings found for now</code>
+	  </p>
+	  {{ end }}
 
         </div>
 	
@@ -90,11 +99,11 @@ function check_radio_buttons(){
 
         <fieldset id="group">
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="bruno">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Bruno">
 	    <label class="form-check-label" for="radio_1">Bruno</label>
           </div>
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="rafaela">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Rafaela">
 	    <label class="form-check-label" for="radio_1">Rafaela</label>
           </div>
         </fieldset>
