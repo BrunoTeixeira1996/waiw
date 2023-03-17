@@ -129,4 +129,6 @@ body {
     width: 200px;
     text-align: center;
     height: 285px;
+    border-style: solid;
+    border-color: #e5e5e5;
 }
