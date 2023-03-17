@@ -36,9 +36,17 @@ INSERT INTO movies VALUES(4,'Movie4','image_path','sinopse4', 'romance','4',4, 4
 INSERT INTO movies VALUES(5,'Movie5','image_path','sinopse5', 'romance','5',5, 5);
 
 
-INSERT INTO ratings VALUES(1,'Very very bad');
-INSERT INTO ratings VALUES(2,'Very bad');
-INSERT INTO ratings VALUES(3,'Bad');
+INSERT INTO ratings VALUES(1,'WTF');
+INSERT INTO ratings VALUES(2,'Realy Realy Bad');
+INSERT INTO ratings VALUES(3,'Realy Bad');
+INSERT INTO ratings VALUES(4,'Bad');
+INSERT INTO ratings VALUES(5,'Meh');
+INSERT INTO ratings VALUES(6,'Not that bad');
+INSERT INTO ratings VALUES(7,'Good');
+INSERT INTO ratings VALUES(8,'Very good');
+INSERT INTO ratings VALUES(9,'Awesome');
+INSERT INTO ratings VALUES(10,'Masterpiece');
+
 
 INSERT INTO users VALUES(1,'Bruno');
 INSERT INTO users VALUES(2,'Rafaela');

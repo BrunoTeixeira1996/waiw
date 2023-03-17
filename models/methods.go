@@ -48,7 +48,7 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 }
 
 // Query all info from ratings
-func (c *Db) QueryAllFromRatings(q string, ratings *[]MovieRating, params ...any) error {
+func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, params ...any) error {
 	if err := c.Connect(); err != nil {
 		return err
 	}
@@ -59,16 +59,16 @@ func (c *Db) QueryAllFromRatings(q string, ratings *[]MovieRating, params ...any
 	}
 
 	for c.Rows.Next() {
-		var rating MovieRating
+		var r MovieRating
 		if c.Err = c.Rows.Scan(
-			&rating.UserName,
-			&rating.Rating,
-			&rating.Comments,
+			&r.UserName,
+			&r.Rating,
+			&r.Comments,
 		); c.Err == sql.ErrNoRows {
 			return fmt.Errorf("Error while scanning rows: %w", c.Err)
 		}
 
-		*ratings = append(*ratings, rating)
+		*movieRatings = append(*movieRatings, r)
 	}
 
 	return nil
