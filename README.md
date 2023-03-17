@@ -4,8 +4,6 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Create movie.html page (https://i.imgur.com/O6GyAM4.png)
-  - [X] When press movie image in `movies` endpoint navigate to this page `movie?id=<movie_id>`
 - [] Create `uploadmovie` endpoint to upload a movie
   - Create a form and upload to db
   - The image will be saved in a `images` folder with a random generated name and that name will be saved in the database
@@ -31,7 +29,8 @@ Go webserver to store movies/series ratings and comments by me and my gf
 - [X] Use dummy data to check if backend and frontend are communicating
 - [X] Connect with go into db
 - [X] Visualize data from db in website
-
+- [X] Create movie.html page (https://i.imgur.com/O6GyAM4.png)
+  - [X] When press movie image in `movies` endpoint navigate to this page `movie?id=<movie_id>`
 
 ## Useful stuff
 
