@@ -13,9 +13,11 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - When inserting an image in db, use the name of an image
   - When showing that image, use `/assets/images/<correct_name>` because for now its hardcoded
 - [] Change movie?id=1 layout
-  - Use only Comments so users can give all of the comments they want
-  - Use a rating independent of the comment
-  - This way it should be easier to edit/delete comments and ratings in the future
+  - Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
+  - Make editable comment and rating
+  - Make deletable comment and rating
+- [] Create Makefile
+- [] Create tests
 
 # DONE
 
