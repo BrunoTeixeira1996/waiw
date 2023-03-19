@@ -34,6 +34,7 @@ INSERT INTO movies VALUES(2,'Movie2','image_name','sinopse2', 'horror','2', 2, 2
 INSERT INTO movies VALUES(3,'Movie3','image_name','sinopse3', 'romance','3',3, 3);
 INSERT INTO movies VALUES(4,'Movie4','image_name','sinopse4', 'romance','4',4, 4);
 INSERT INTO movies VALUES(5,'Movie5','image_name','sinopse5', 'romance','5',5, 5);
+INSERT INTO movies VALUES(6,'Movie6','image_name','sinopse6', 'romance','6',6, 6);
 
 
 INSERT INTO ratings VALUES(1,'WTF');

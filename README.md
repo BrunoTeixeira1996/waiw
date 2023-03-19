@@ -16,7 +16,6 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - Make editable comment and rating
   - Make deletable comment and rating
-- [] Create Makefile
 - [] Create tests
 
 # DONE
@@ -42,12 +41,4 @@ Go webserver to store movies/series ratings and comments by me and my gf
 - [X] Create movie.html page (https://i.imgur.com/O6GyAM4.png)
   - [X] When press movie image in `movies` endpoint navigate to this page `movie?id=<movie_id>`
 - [X] Insert comments and ratings in movies
-
-## Useful stuff
-
-- Use `create_db.sql` to create a clean dummy database
-
-```console
-$ cat create_db.sql | sqlite3 database.db
-```
-
+- [X] Create Makefile
