@@ -64,7 +64,7 @@ function check_radio_buttons(){
 	  </p>
 	</div>
 
-        <div class="col-lg-6">
+    <div class="col-lg-6">
 	  <h4> Comments /Ratings </h4>
 	  {{ $length := len $movie.MovieRating }}
 	  {{ if eq $length  0 }}
@@ -80,8 +80,8 @@ function check_radio_buttons(){
 	  {{ end }}
         </div>
     </div>
-    {{ end }}
 
+{{ if lt $length 2 }}
 <div class ="container">
    <article class="media content-section" id="group_1">
         <form method="POST" id="save_comments">
@@ -115,15 +115,18 @@ function check_radio_buttons(){
 	  <option value="9">Awesome</option>
  	  <option value="10">Masterpiece</option>
 	</select>
-</div>
-<p class="flag"></p>
-
-</article>
 </form>
+</article>
+</div>
+
+<p class="flag"></p>
 
 <div class="form-group pull-right">
     <button onclick="check_radio_buttons(); check_comment();" class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
 </div>
-
-</div>
 {{ end }}
+
+
+{{ end }}
+{{ end }}
+
