@@ -12,10 +12,10 @@ Go webserver to store movies/series ratings and comments by me and my gf
 - [] Add correct images for correct movies
   - When inserting an image in db, use the name of an image
   - When showing that image, use `/assets/images/<correct_name>` because for now its hardcoded
-- [] Change movie?id=1 layout
-  - Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
-  - Make editable comment and rating
-  - Make deletable comment and rating
+- [X] Change movie?id=1 layout
+  - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
+  - [] Make editable comment and rating
+  - [] Make deletable comment and rating
 - [] Create tests
 
 # DONE
