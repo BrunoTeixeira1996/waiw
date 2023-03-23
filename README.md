@@ -16,6 +16,9 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
   - [] Make deletable comment and rating
+- [] Refactor code
+  - [] change from fmt.Print to log
+  - [] reduce code dupplication
 - [] Create tests
 
 # DONE

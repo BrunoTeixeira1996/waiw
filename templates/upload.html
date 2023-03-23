@@ -2,33 +2,6 @@
 {{ define "content" }}
 
 
-<script>
-function check_inputs(){
-    $(`form`).on('submit',(e)=>{
-	if (!$.trim($("textarea").val())) {
-	$(`.flag`).text("Insert a comment").addClass("alert alert-danger")
-	e.preventDefault();
-      }
-  });
-}
-
-function check_radio_buttons(){
-    $(`form`).on('submit',(e)=>{
-	$(`input[type="radio"]`).each(function(){
-            var name = $(this).attr("name");
-            if($(`input:radio[name="${name}"]:checked`).length == 0){
-		console.log("asd");
-                $(`.flag`).text("Choose Bruno or Rafaela").addClass("alert alert-danger")
-                e.preventDefault();
-            }
-        });
-    });
-}
-
-</script>
-
-
-
 <div class ="container">
   <form enctype="multipart/form-data" method="POST" id="upload">
     <div class="col-lg-6">

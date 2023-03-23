@@ -3,8 +3,11 @@ package utils
 import (
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
+	"strings"
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 )
@@ -93,11 +96,78 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 // Handles "/upload"
 func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
+	var allowedImageTypes = map[string]int{
+		"image/png":  1,
+		"image/jpeg": 2,
+		"image/jpg":  3,
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := models.Page{
-			Title: "Upload",
+		switch r.Method {
+		case "GET":
+			page := models.Page{
+				Title: "Upload",
+			}
+			baseTemplate.Execute(w, page)
+
+		case "POST":
+			// Get image name and save in /assets/image/ folder
+			im := func() string {
+				image, handler, err := r.FormFile("myFile")
+				if err != nil {
+					fmt.Println("Error retrieved the image file ", err)
+					return ""
+				}
+				defer image.Close()
+				if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
+					fmt.Println("Error, file type not allowed")
+					return ""
+				}
+
+				path, err := os.Getwd()
+				if err != nil {
+					fmt.Println("Error while getting the current path ", err)
+					return ""
+				}
+
+				newImage, err := os.CreateTemp(path+"/assets/images", "upload-*.png")
+				if err != nil {
+					fmt.Println("Error while creating the new image ", err)
+					return ""
+				}
+				defer newImage.Close()
+
+				imageBytes, err := ioutil.ReadAll(image)
+				if err != nil {
+					fmt.Println("Error while reading the contents of the uploaded image ", err)
+					return ""
+				}
+				if _, err := newImage.Write(imageBytes); err != nil {
+					fmt.Println("Error while writting the new image ", err)
+					return ""
+				}
+				im := strings.Split(newImage.Name(), "/")
+				return im[len(im)-1]
+			}
+
+			movie := models.Movie{
+				Title:       r.FormValue("title"),
+				Image:       im(),
+				Sinopse:     r.FormValue("area_1"),
+				Genre:       r.FormValue("genre"),
+				Imdb_Rating: r.FormValue("imdb"),
+				Launch_Date: r.FormValue("ldate"),
+				View_Date:   r.FormValue("vdate"),
+			}
+
+			// TODO:
+			//- add movie to database
+
+			page := models.Page{
+				Title: "Upload",
+			}
+			baseTemplate.Execute(w, page)
 		}
-		baseTemplate.Execute(w, page)
 	}
 }
 
