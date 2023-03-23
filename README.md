@@ -4,11 +4,10 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Create `/upload` endpoint to upload a movie
-  - Create a form and upload to db
-  - The image will be saved in a `/assets/images/` folder with a random generated name and that name will be saved in the database
-  - Create jquery to validate all inputs are filled
-  - Check this https://tutorialedge.net/golang/go-file-upload-tutorial/
+- [X] Create `/upload` endpoint to upload a movie
+  - [] Create a form and upload to db
+  - [X] The image will be saved in a `/assets/images/` folder with a random generated name and that name will be saved in the database
+  - [] Create jquery to validate all inputs are filled
 - [] Add correct images for correct movies
   - When inserting an image in db, use the name of an image
   - When showing that image, use `/assets/images/<correct_name>` because for now its hardcoded
