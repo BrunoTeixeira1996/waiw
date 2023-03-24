@@ -106,3 +106,16 @@ func (c *Db) InsertMovieComments(q string, params ...any) error {
 	}
 	return nil
 }
+
+// Insert new movie
+func (c *Db) InsertNewMovie(q string, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while inserting a new movie: %w", c.Err)
+	}
+	return nil
+}

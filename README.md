@@ -5,7 +5,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 # TODO
 
 - [X] Create `/upload` endpoint to upload a movie
-  - [] Create a form and upload to db
+  - [X] Create a form and upload to db
   - [X] The image will be saved in a `/assets/images/` folder with a random generated name and that name will be saved in the database
   - [] Create jquery to validate all inputs are filled
 - [] Add correct images for correct movies

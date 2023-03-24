@@ -43,7 +43,7 @@ func startServer(currentPath string) error {
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", utils.IndexHandle(baseTemplate))
-	mux.HandleFunc("/upload", utils.UploadHandle(uploadTemplate))
+	mux.HandleFunc("/upload", utils.UploadHandle(uploadTemplate, db))
 
 	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate, db))
 	mux.HandleFunc("/movie", utils.MoviesHandle(movieTemplate, db))

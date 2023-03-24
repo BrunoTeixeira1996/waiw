@@ -95,7 +95,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 }
 
 // Handles "/upload"
-func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
+func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
 	var allowedImageTypes = map[string]int{
 		"image/png":  1,
 		"image/jpeg": 2,
@@ -162,6 +162,9 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 			// TODO:
 			//- add movie to database
+			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES (?,?,?,?,?,?,?)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
+				fmt.Println("Error while inserting new movie %w", err)
+			}
 
 			page := models.Page{
 				Title: "Upload",
