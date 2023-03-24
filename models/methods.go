@@ -119,3 +119,30 @@ func (c *Db) InsertNewMovie(q string, params ...any) error {
 	}
 	return nil
 }
+
+// Check if any of movie field is empty
+func (m *Movie) HasEmptyAttr() (bool, string) {
+	if m.Title == "" {
+		return true, "Title"
+	}
+	if m.Image == "" {
+		return true, "Image"
+	}
+	if m.Sinopse == "" {
+		return true, "Sinopse"
+	}
+	if m.Genre == "" {
+		return true, "Genre"
+	}
+	if m.Imdb_Rating == "" {
+		return true, "Imdb_Rating"
+	}
+	if m.Launch_Date == "" {
+		return true, "Launch_Date"
+	}
+	if m.View_Date == "" {
+		return true, "View_Date"
+	}
+
+	return false, ""
+}

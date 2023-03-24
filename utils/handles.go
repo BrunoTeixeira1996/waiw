@@ -160,6 +160,16 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				View_Date:   r.FormValue("vdate"),
 			}
 
+			if hasEmpty, emptyAttr := movie.HasEmptyAttr(); hasEmpty {
+				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
+				page := models.Page{
+					Title: "Upload",
+					Any:   template.HTML(alertDanger),
+				}
+				baseTemplate.Execute(w, page)
+				return
+			}
+
 			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES (?,?,?,?,?,?,?)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
 				fmt.Println("Error while inserting new movie %w", err)
 				return

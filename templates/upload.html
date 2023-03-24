@@ -1,50 +1,35 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
-<script>
-
-    function check_inputs(){
-	$(`form`).on('submit',(e) => {
-	    var fflag = false;
-	    for(var i=0; i < $("input").length; i++){
-		if (!$("input")[i].value){fflag = true}
-	    }
-    	if ((!$.trim($("textarea").val())) || fflag ){
-    	    $(`.flag`).text("Fill all inputs").addClass("alert alert-danger")
-    	    e.preventDefault();
-    	}
-    })};
-
-</script>
-
-
-
 <div class ="container">
   <form enctype="multipart/form-data" method="POST" id="upload">
     <div class="col-lg-6">
       <label for="title"><h4>Title</h4></label><br>
-      <input type="text" id="title" name="title" value=""><br>
+      <input type="text" id="title" name="title" value="" required><br>
       
       <label for="exampleFormControlTextarea1"><h4>Sinopse<h4></label>
-      <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1"></textarea>
+      <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1" required></textarea>
       <label for="genre"><h4>Genre</h4></label><br>
-      <input type="text" id="genre" name="genre" value=""><br>
+      <input type="text" id="genre" name="genre" value="" required><br>
       <label for="imdb"><h4>Imdb Rating</h4></label><br>
-      <input type="text" id="imdb" name="imdb" value=""><br>
+      <input type="text" id="imdb" name="imdb" value="" required><br>
       <label for="ldate"><h4>Launch Date</h4></label><br>
-      <input type="date" id="ldate" name="ldate" value=""><br>
+      <input type="date" id="ldate" name="ldate" value="" required><br>
       <label for="vdate"><h4>View Date</h4></label><br>
-      <input type="date" id="vdate" name="vdate" value=""><br>
+      <input type="date" id="vdate" name="vdate" value="" required><br>
       <label for="image"><h4>Image</h4></label><br>
-      <input type="file" name="myFile" /><br>
+      <input type="file" name="myFile" required/><br>
   </form>
 
-<p class="flag"></p>
+
   
   <div class="form-group">
-    <button onclick="check_inputs();" class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
+    <button class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
 </div>
   </div>
 </div>
+
+{{ .Any }}
+
 <br>
 {{ end }}
