@@ -2,23 +2,19 @@
 {{ define "content" }}
 
 <script>
-// function check_inputs(){
-//     $(`form`).on('submit',(e)=>{
-// 	if ((!$.trim($("textarea").val())) || (!$.trim($("input").val()))){
-// 	    console.log("asdsaddsa")
-// 	    $(`.flag`).text("Fill all inputs").addClass("alert alert-danger")
-// 	    e.preventDefault();
-// 	}
-//   });
-// }
 
-  function ch(){
-      $(`form`).on('submit',(e)=>{
-	  if ( (!$($('input:text').val()))) {
-      $(this).parents('p').addClass('alert alert-danger');
-    }
-      });
-}
+    function check_inputs(){
+	$(`form`).on('submit',(e) => {
+	    var fflag = false;
+	    for(var i=0; i < $("input").length; i++){
+		if (!$("input")[i].value){fflag = true}
+	    }
+    	if ((!$.trim($("textarea").val())) || fflag ){
+    	    $(`.flag`).text("Fill all inputs").addClass("alert alert-danger")
+    	    e.preventDefault();
+    	}
+    })};
+
 </script>
 
 
@@ -46,7 +42,7 @@
 <p class="flag"></p>
   
   <div class="form-group">
-    <button onclick="ch();" class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
+    <button onclick="check_inputs();" class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
 </div>
   </div>
 </div>

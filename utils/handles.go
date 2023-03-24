@@ -60,8 +60,6 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				title = "Movies"
 			}
 
-			fmt.Println(movies)
-
 			page := models.Page{
 				Title: title,
 				Any:   movies,
