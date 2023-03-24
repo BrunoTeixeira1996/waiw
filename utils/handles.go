@@ -36,11 +36,10 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			// FIXME: need to check if there's a cookie
 			// if yes, then I need to write the error in page
 			// and then delete the cookie
-			if hasErrorCookie, err := r.Cookie("empty"); err != nil {
-				fmt.Println(r.Cookie("empty"))
-				fmt.Println("==========")
-				fmt.Println(hasErrorCookie)
-			}
+			c, _ := r.Cookie("error_cookie")
+			fmt.Println("----------")
+			fmt.Println(c)
+			fmt.Println("----------")
 
 			// Get movieId
 			movieId := r.URL.Query().Get("id")
@@ -98,7 +97,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			if hasEmpty, emptyAttr := hasEmptyAttrs(); hasEmpty {
 				// Set cookie so GET knows there's an error
 				fmt.Printf("Found empty input: %s\n", emptyAttr)
-				cookie := http.Cookie{Name: "empty", Value: emptyAttr}
+				cookie := http.Cookie{Name: "error_cookie", Value: emptyAttr}
 				http.SetCookie(w, &cookie)
 				http.Redirect(w, r, r.Header.Get("Referer"), 302)
 				return
