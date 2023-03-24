@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 )
 
 // Connect to database
@@ -45,6 +46,28 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 	}
 
 	return nil
+}
+
+// Query a movie
+func (c *Db) QueryMovie(movieId string, title string, movies *[]Movie, movieRating []MovieRating) error {
+	if regexp.MustCompile(`\d`).MatchString(movieId) {
+		if err := c.QueryAllFromMovies("select * from movies where id = ?", movies, movieId); err != nil {
+			return fmt.Errorf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
+		}
+
+		// Gathers comments and ratings about specific movie
+		if err := c.QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = ?", &movieRating, movieId); err != nil {
+			return fmt.Errorf("Error while QueryCommentsAndRatings for movie id=%s\n", movieId)
+		}
+	}
+
+	// Adds movieRating to the rating of a certain movie
+	(*movies)[0].MovieRating = movieRating
+	// Adds title of the page according to the respective movie
+	title = (*movies)[0].Title
+
+	return nil
+
 }
 
 // Query all info about rating and comments

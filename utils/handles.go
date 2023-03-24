@@ -33,24 +33,24 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
+			// FIXME: need to check if there's a cookie
+			// if yes, then I need to write the error in page
+			// and then delete the cookie
+			if hasErrorCookie, err := r.Cookie("empty"); err != nil {
+				fmt.Println(r.Cookie("empty"))
+				fmt.Println("==========")
+				fmt.Println(hasErrorCookie)
+			}
+
 			// Get movieId
 			movieId := r.URL.Query().Get("id")
 
 			// List respective movie based on movieId
 			if movieId != "" {
-				if regexp.MustCompile(`\d`).MatchString(movieId) {
-					if err := db.QueryAllFromMovies("select * from movies where id = ?", &movies, movieId); err != nil {
-						fmt.Printf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
-					}
-					// Gathers comments and ratings about specific movid
-					if err := db.QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = ?", &movieRating, movieId); err != nil {
-						fmt.Printf("Error while QueryCommentsAndRatings for movie id=%s\n", movieId)
-					}
+				if err := db.QueryMovie(movieId, title, &movies, movieRating); err != nil {
+					fmt.Println("Error while querying a movie")
+					return
 				}
-				// Adds movieRating to the rating of a certain movie
-				movies[0].MovieRating = movieRating
-				// Adds title of the page according to the respective movie
-				title = movies[0].Title
 
 			} else {
 				// List all movies
@@ -94,14 +94,13 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				return false, ""
 			}
 
-			// FIXME: Stay on the same page but present the <p> error
+			// Check if all inputs are filled
 			if hasEmpty, emptyAttr := hasEmptyAttrs(); hasEmpty {
-				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
-				page := models.Page{
-					Title: "",
-					Error: template.HTML(alertDanger),
-				}
-				baseTemplate.Execute(w, page)
+				// Set cookie so GET knows there's an error
+				fmt.Printf("Found empty input: %s\n", emptyAttr)
+				cookie := http.Cookie{Name: "empty", Value: emptyAttr}
+				http.SetCookie(w, &cookie)
+				http.Redirect(w, r, r.Header.Get("Referer"), 302)
 				return
 			}
 
@@ -116,6 +115,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					fmt.Println("Error while inserting movie comment %w", err)
 				}
 			}
+
 			// Redirects to GET
 			http.Redirect(w, r, r.Header.Get("Referer"), 302)
 		}
