@@ -87,33 +87,34 @@ function check_radio_buttons(){
         <form method="POST" id="save_comments">
         <div class="form-group p-3">
             <label for="exampleFormControlTextarea1">Comment</label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1"></textarea>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1" required></textarea>
         </div>
-
+	
         <fieldset id="group">
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Bruno">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Bruno" required>
 	    <label class="form-check-label" for="radio_1">Bruno</label>
           </div>
           <div class="form-check form-check-inline">
-	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Rafaela">
+	    <input class="form-check-input" type="radio" name="group_1" id="radio_1" value="Rafaela" required>
 	    <label class="form-check-label" for="radio_1">Rafaela</label>
           </div>
         </fieldset>
 	<br>
 	
 	<label for="rating">Choose a rating</label>
-	<select name="ratings" id="ratings">
-	  <option value="1">WTF</option>
-	  <option value="2">Realy Realy Bad</option>
-	  <option value="3">Realy Bad</option>
-	  <option value="4">Bad</option>
-	  <option value="5">Meh</option>
-	  <option value="6">Not that bad</option>
-	  <option value="7">Good</option>
-	  <option value="8">Very good</option>
-	  <option value="9">Awesome</option>
- 	  <option value="10">Masterpiece</option>
+	<select name="ratings" id="ratings" required>
+	  <option selected disabled hidden></option>
+	  <option value="1" >WTF</option>
+	  <option value="2" >Realy Realy Bad</option>
+	  <option value="3" >Realy Bad</option>
+	  <option value="4" >Bad</option>
+	  <option value="5" >Meh</option>
+	  <option value="6" >Not that bad</option>
+	  <option value="7" >Good</option>
+	  <option value="8" >Very good</option>
+	  <option value="9" >Awesome</option>
+ 	  <option value="10" >Masterpiece</option>
 	</select>
 </form>
 </article>
@@ -122,10 +123,11 @@ function check_radio_buttons(){
 <p class="flag"></p>
 
 <div class="form-group pull-right">
-    <button onclick="check_radio_buttons(); check_comment();" class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
+    <button class="btn btn-outline-info" type="submit" form="save_comments" name="Submit">Submit</button>
 </div>
 {{ end }}
 
+{{ .Error }}
 
 {{ end }}
 {{ end }}

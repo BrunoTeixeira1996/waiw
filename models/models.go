@@ -16,6 +16,7 @@ type Db struct {
 type Page struct {
 	Title string
 	Any   any
+	Error any
 }
 
 // Struct that represents a movie

@@ -77,6 +77,34 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			author := r.FormValue("group_1")
 			choosenRating := r.Form["ratings"][0]
 			movieId := r.URL.Query().Get("id")
+			hasEmptyAttrs := func() (bool, string) {
+				if comments == "" {
+					return true, "Comments"
+				}
+				if author == "" {
+					return true, "Author"
+				}
+				if choosenRating == "" {
+					return true, "Rating"
+				}
+				if movieId == "" {
+					return true, "Movie ID"
+				}
+
+				return false, ""
+			}
+
+			// FIXME: Stay on the same page but present the <p> error
+			if hasEmpty, emptyAttr := hasEmptyAttrs(); hasEmpty {
+				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
+				page := models.Page{
+					Title: "",
+					Error: template.HTML(alertDanger),
+				}
+				baseTemplate.Execute(w, page)
+				return
+			}
+
 			var user models.User
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
@@ -164,7 +192,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
 				page := models.Page{
 					Title: "Upload",
-					Any:   template.HTML(alertDanger),
+					Error: template.HTML(alertDanger),
 				}
 				baseTemplate.Execute(w, page)
 				return
