@@ -1,6 +1,27 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
+<script>
+// function check_inputs(){
+//     $(`form`).on('submit',(e)=>{
+// 	if ((!$.trim($("textarea").val())) || (!$.trim($("input").val()))){
+// 	    console.log("asdsaddsa")
+// 	    $(`.flag`).text("Fill all inputs").addClass("alert alert-danger")
+// 	    e.preventDefault();
+// 	}
+//   });
+// }
+
+  function ch(){
+      $(`form`).on('submit',(e)=>{
+	  if ( (!$($('input:text').val()))) {
+      $(this).parents('p').addClass('alert alert-danger');
+    }
+      });
+}
+</script>
+
+
 
 <div class ="container">
   <form enctype="multipart/form-data" method="POST" id="upload">
@@ -22,8 +43,10 @@
       <input type="file" name="myFile" /><br>
   </form>
 
+<p class="flag"></p>
+  
   <div class="form-group">
-    <button onclick="check_radio_buttons(); check_comment();" class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
+    <button onclick="ch();" class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
 </div>
   </div>
 </div>

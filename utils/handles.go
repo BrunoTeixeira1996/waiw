@@ -60,6 +60,8 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				title = "Movies"
 			}
 
+			fmt.Println(movies)
+
 			page := models.Page{
 				Title: title,
 				Any:   movies,
@@ -160,10 +162,9 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				View_Date:   r.FormValue("vdate"),
 			}
 
-			// TODO:
-			//- add movie to database
 			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES (?,?,?,?,?,?,?)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
 				fmt.Println("Error while inserting new movie %w", err)
+				return
 			}
 
 			page := models.Page{
