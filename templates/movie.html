@@ -30,7 +30,7 @@ function check_radio_buttons(){
 {{ range $movie := .Any }}
     <div class="container">
         <div class="jumbotron" style="padding: 1em; padding-right: 37px; padding-left: 2em; text-align: left; height: 210px">
-        <img src="/assets/images/a.jpg" align="right">
+        <img style="width:200px" src="/assets/images/{{ $movie.Image }}" align="right">
         <h2> {{ $movie.Title }}</h2>
 	<p>
 	  {{ $movie.Sinopse }}
