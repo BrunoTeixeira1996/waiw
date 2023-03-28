@@ -10,6 +10,7 @@ import (
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 	"github.com/BrunoTeixeira1996/waiw/utils"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Handles the exit signal
@@ -71,6 +72,8 @@ func startServer(currentPath string) error {
 
 // Function that handles the errors
 func run() error {
+	// debug := flag.String("debug", "debug", "debug")
+	// flag.Parse()
 
 	currentPath, err := os.Getwd()
 	if err != nil {
@@ -91,7 +94,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
-// func main() {
-// 	utils.DbDEBUG()
-// }

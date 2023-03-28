@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -60,14 +61,14 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			// List respective movie based on movieId
 			if movieId != "" {
 				if err := db.QueryMovie(movieId, title, &movies, movieRating); err != nil {
-					fmt.Println("Error while querying a movie")
+					log.Println("Error while querying a movie:", err)
 					return
 				}
 
 			} else {
 				// List all movies
 				if err := db.QueryAllFromMovies("select * from movies", &movies); err != nil {
-					fmt.Println("Error while handling QueryAllFromMovies")
+					log.Println("Error while handling QueryAllFromMovies:", err)
 				}
 				title = "Movies"
 			}
@@ -122,7 +123,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
 				if err := db.SetUser("select * from users where username = ?", author, &user); err != nil {
-					fmt.Println(err)
+					log.Println("Error while seting user:", err)
 					return
 				}
 
@@ -130,7 +131,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				userHasCommented := func() bool {
 					yes, err := db.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = ? and users.id = ?", movieId, user.Id)
 					if err != nil {
-						fmt.Println("Error while checking if user already commented on movie ", err)
+						log.Println("Error while checking if user already commented on movie:", err)
 						return false
 					}
 
@@ -151,7 +152,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 				// Insert in database the comments and ratings
 				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES (?,?,?,?)", movieId, user.Id, choosenRating, comments); err != nil {
-					fmt.Println("Error while inserting movie comment %w", err)
+					log.Println("Error while inserting movie comment:", err)
 					return
 				}
 			}
@@ -183,35 +184,35 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			im := func() string {
 				image, handler, err := r.FormFile("myFile")
 				if err != nil {
-					fmt.Println("Error retrieved the image file ", err)
+					log.Println("Error retrieved the image file:", err)
 					return ""
 				}
 				defer image.Close()
 				if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
-					fmt.Println("Error, file type not allowed")
+					log.Println("Error, file type not allowed")
 					return ""
 				}
 
 				path, err := os.Getwd()
 				if err != nil {
-					fmt.Println("Error while getting the current path ", err)
+					log.Println("Error while getting the current path:", err)
 					return ""
 				}
 
 				newImage, err := os.CreateTemp(path+"/assets/images", "upload-*.png")
 				if err != nil {
-					fmt.Println("Error while creating the new image ", err)
+					log.Println("Error while creating the new image:", err)
 					return ""
 				}
 				defer newImage.Close()
 
 				imageBytes, err := ioutil.ReadAll(image)
 				if err != nil {
-					fmt.Println("Error while reading the contents of the uploaded image ", err)
+					log.Println("Error while reading the contents of the uploaded image:", err)
 					return ""
 				}
 				if _, err := newImage.Write(imageBytes); err != nil {
-					fmt.Println("Error while writting the new image ", err)
+					log.Println("Error while writting the new image:", err)
 					return ""
 				}
 				im := strings.Split(newImage.Name(), "/")
@@ -239,7 +240,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			}
 
 			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES (?,?,?,?,?,?,?)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
-				fmt.Println("Error while inserting new movie %w", err)
+				log.Println("Error while inserting new movie:", err)
 				return
 			}
 

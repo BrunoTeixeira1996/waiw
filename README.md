@@ -35,3 +35,4 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - [X] Create jquery to validate all inputs are filled
 - [X] Bug when inserting comments
   - If bruno inserts comments twice, rafaela can't insert more so I need to validate this
+- [X] Create valid database and debug database
