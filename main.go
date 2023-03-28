@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -13,6 +14,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func isFlagPassed(name string) bool {
+	found := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
+}
+
 // Handles the exit signal
 func handleExit(exit chan bool) {
 	ch := make(chan os.Signal, 5)
@@ -23,9 +34,16 @@ func handleExit(exit chan bool) {
 }
 
 // Starts the web server
-func startServer(currentPath string) error {
-	// Prepare database
+func startServer(currentPath string, debugFlag bool) error {
+
 	db := &models.Db{}
+
+	// Check if its in debug mode
+	if debugFlag {
+		db.Location = "/home/brun0/Desktop/personal/waiw/dev_database.db"
+	} else {
+		db.Location = "/home/brun0/Desktop/personal/waiw/prod_database.db"
+	}
 
 	// Handle exit
 	exit := make(chan bool)
@@ -72,15 +90,15 @@ func startServer(currentPath string) error {
 
 // Function that handles the errors
 func run() error {
-	// debug := flag.String("debug", "debug", "debug")
-	// flag.Parse()
+	debugFlag := flag.Bool("debug", false, "use this if you just want to use the debug database")
+	flag.Parse()
 
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	err = startServer(currentPath)
+	err = startServer(currentPath, *debugFlag)
 	if err != nil {
 		return err
 	}

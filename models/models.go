@@ -6,10 +6,11 @@ import (
 
 // Struct that represents a Db
 type Db struct {
-	Con    *sql.DB
-	Err    error
-	Rows   *sql.Rows
-	Result sql.Result
+	Location string
+	Con      *sql.DB
+	Err      error
+	Rows     *sql.Rows
+	Result   sql.Result
 }
 
 // Struct that represents a webpage

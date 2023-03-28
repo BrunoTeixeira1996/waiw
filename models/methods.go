@@ -8,7 +8,7 @@ import (
 
 // Connect to database
 func (c *Db) Connect() error {
-	c.Con, c.Err = sql.Open("sqlite3", "/home/brun0/Desktop/personal/waiw/dev_database.db")
+	c.Con, c.Err = sql.Open("sqlite3", c.Location)
 	if c.Err != nil {
 		return fmt.Errorf("Error while connecting to database: %w", c.Err)
 	}
