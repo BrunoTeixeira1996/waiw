@@ -26,11 +26,12 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 // Handles "/movies"
 func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
 	var (
-		movies      []models.Movie
-		movieRating []models.MovieRating
-		title       string
-		alertDanger string
-		emptyInputs bool
+		movies       []models.Movie
+		movieRating  []models.MovieRating
+		title        string
+		alertDanger  string
+		emptyInputs  bool
+		hasCommented bool
 	)
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +45,13 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				cookie := http.Cookie{Name: "error_cookie", Value: "", Expires: time.Unix(0, 0), HttpOnly: true}
 				http.SetCookie(w, &cookie)
 				emptyInputs = false
+			}
+
+			if hasCommented {
+				alertDanger = fmt.Sprintf("<p class='alert alert-danger'> User already comment this </p>")
+				cookie := http.Cookie{Name: "error_cookie", Value: "", Expires: time.Unix(0, 0), HttpOnly: true}
+				http.SetCookie(w, &cookie)
+				hasCommented = false
 			}
 
 			// Get movieId
@@ -72,7 +80,8 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 			baseTemplate.Execute(w, page)
 
-			// Cleaning slices since they are pointers, or they will get dup values
+			// Cleaning slices since they are pointers, or they will get dup values as well as the alert
+			alertDanger = ""
 			movies = nil
 			movieRating = nil
 
@@ -114,10 +123,36 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
 				if err := db.SetUser("select * from users where username = ?", author, &user); err != nil {
 					fmt.Println(err)
+					return
 				}
+
+				// Verify if this user already commented
+				userHasCommented := func() bool {
+					yes, err := db.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = ? and users.id = ?", movieId, user.Id)
+					if err != nil {
+						fmt.Println("Error while checking if user already commented on movie ", err)
+						return false
+					}
+
+					if yes {
+						fmt.Println("User already commented")
+						cookie := http.Cookie{Name: "error_cookie", Value: "User already commented this"}
+						http.SetCookie(w, &cookie)
+						return true
+					}
+					return false
+				}
+
+				if userHasCommented() {
+					hasCommented = true
+					http.Redirect(w, r, r.Header.Get("Referer"), 302)
+					return
+				}
+
 				// Insert in database the comments and ratings
 				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES (?,?,?,?)", movieId, user.Id, choosenRating, comments); err != nil {
 					fmt.Println("Error while inserting movie comment %w", err)
+					return
 				}
 			}
 

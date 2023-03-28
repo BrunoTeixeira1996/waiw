@@ -27,6 +27,8 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 		return fmt.Errorf("Error while doing query: %w", c.Err)
 	}
 
+	defer c.Rows.Close()
+
 	for c.Rows.Next() {
 		var m Movie
 		if c.Err = c.Rows.Scan(
@@ -81,6 +83,8 @@ func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, para
 		return fmt.Errorf("Error while doing query: %w", c.Err)
 	}
 
+	defer c.Rows.Close()
+
 	for c.Rows.Next() {
 		var r MovieRating
 		if c.Err = c.Rows.Scan(
@@ -108,6 +112,7 @@ func (c *Db) SetUser(q string, username string, user *User) error {
 		return fmt.Errorf("Error while querying for user: %w", c.Err)
 	}
 
+	defer c.Rows.Close()
 	for c.Rows.Next() {
 		if c.Err = c.Rows.Scan(&user.Id, &user.Username); c.Err == sql.ErrNoRows {
 			return fmt.Errorf("Error while scanning rows: %w", c.Err)
@@ -141,6 +146,26 @@ func (c *Db) InsertNewMovie(q string, params ...any) error {
 		return fmt.Errorf("Error while inserting a new movie: %w", c.Err)
 	}
 	return nil
+}
+
+// Check if user already commented
+func (c *Db) UserAlreadyCommented(q string, params ...any) (bool, error) {
+	if err := c.Connect(); err != nil {
+		return false, err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
+		return false, fmt.Errorf("Error while doing query: %w", c.Err)
+	}
+
+	defer c.Rows.Close()
+
+	for c.Rows.Next() {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // Check if any of movie field is empty

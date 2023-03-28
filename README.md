@@ -4,8 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Bug when inserting comments
-  - If bruno inserts comments twice, rafaela can't insert more so I need to validate this
+- [] Make flag for debuging as well as a database for debugging
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
@@ -18,18 +17,6 @@ Go webserver to store movies/series ratings and comments by me and my gf
 # DONE
 
 - [X] Create tables for db
-	- movies table
-      | id | title | image | sinopse | genre | imdb_rating | launch_date | view_date |
-
-	- rating table
-      | id | rating |
-
-	- user table
-	  | id | username |
-
-	- movie_rating table
-	  | id | movie_id | user_id | rating_id | comments |
-
 - [X] Insert dummy data into the db
 - [X] Build css and html base
 - [X] Use dummy data to check if backend and frontend are communicating
@@ -46,3 +33,5 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - [X] Create a form and upload to db
   - [X] The image will be saved in a `/assets/images/` folder with a random generated name and that name will be saved in the database
   - [X] Create jquery to validate all inputs are filled
+- [X] Bug when inserting comments
+  - If bruno inserts comments twice, rafaela can't insert more so I need to validate this
