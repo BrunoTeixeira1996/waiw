@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 )
@@ -28,18 +29,22 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 		movies      []models.Movie
 		movieRating []models.MovieRating
 		title       string
+		alertDanger string
+		emptyInputs bool
 	)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
-			// FIXME: need to check if there's a cookie
-			// if yes, then I need to write the error in page
-			// and then delete the cookie
+			// Checks if theres a cookie about an error so we can display that in the html
 			c, _ := r.Cookie("error_cookie")
-			fmt.Println("----------")
-			fmt.Println(c)
-			fmt.Println("----------")
+
+			if emptyInputs {
+				alertDanger = fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", c.Value)
+				cookie := http.Cookie{Name: "error_cookie", Value: "", Expires: time.Unix(0, 0), HttpOnly: true}
+				http.SetCookie(w, &cookie)
+				emptyInputs = false
+			}
 
 			// Get movieId
 			movieId := r.URL.Query().Get("id")
@@ -62,6 +67,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			page := models.Page{
 				Title: title,
 				Any:   movies,
+				Error: template.HTML(alertDanger),
 			}
 
 			baseTemplate.Execute(w, page)
@@ -96,7 +102,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			// Check if all inputs are filled
 			if hasEmpty, emptyAttr := hasEmptyAttrs(); hasEmpty {
 				// Set cookie so GET knows there's an error
-				fmt.Printf("Found empty input: %s\n", emptyAttr)
+				emptyInputs = true
 				cookie := http.Cookie{Name: "error_cookie", Value: emptyAttr}
 				http.SetCookie(w, &cookie)
 				http.Redirect(w, r, r.Header.Get("Referer"), 302)
