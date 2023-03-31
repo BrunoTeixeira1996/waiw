@@ -4,7 +4,7 @@
 <div id="content-listing">
   {{ range $movie := .Any }}
   <div class="item-poster">
-    <a title="{{ $movie.Title }}" href="/movie?id={{ $movie.Id }}"> <img style="width:200px" src="/assets/images/{{ $movie.Image }}" alt=""></a>
+    <a title="{{ $movie.Title }}" href="/movie?id={{ $movie.Id }}"> <img style="width: 188px;float: left;margin-right: 2rem;margin-bottom: 1rem;border: 1px solid black;box-shadow: 1px 2px 5px black;" src="/assets/images/{{ $movie.Image }}" alt=""></a>
     <div class="infos">
       <code> {{ $movie.Title }} </code>
       <span> {{ $movie.Imdb_Rating }}  </span>
