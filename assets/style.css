@@ -87,7 +87,7 @@ body {
     width: 100%;
     height: auto;
     position: sticky;
-    padding: 15px;
+    padding: 20px;
 }
 
 .item-poster .infos span{
@@ -104,7 +104,6 @@ body {
 
 .infos .y{
     font-size: 12px;
-    float: left;
     position: relative;
 }
 #content-listing{

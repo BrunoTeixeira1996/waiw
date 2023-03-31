@@ -6,10 +6,10 @@
   <div class="item-poster">
     <a title="{{ $movie.Title }}" href="/movie?id={{ $movie.Id }}"> <img style="width: 188px; border: 1px solid black;box-shadow: 1px 2px 5px black" src="/assets/images/{{ $movie.Image }}" alt=""></a>
     <div class="infos">
-      <code> {{ $movie.Title }} </code>
-      <span> {{ $movie.Imdb_Rating }}  </span>
-      <span> {{ $movie.Genre }} </span>
-      <div class="y">{{ $movie.Launch_Date }}</div>
+      <code> {{ $movie.Title }} </code><br>
+      <span> Imdb: <b>{{ $movie.Imdb_Rating }} </b> </span>
+      <span> Genre: <b>{{ $movie.Genre }}  </b> </span>
+      <div class="y">Year: <b>{{ $movie.Launch_Date }}</b></div>
     </div>
     </div>
   {{ end }}

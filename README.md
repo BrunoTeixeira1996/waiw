@@ -4,6 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
+- [] Fix selection in navbar, so when we are in /movies just select movies as blue and not home
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
@@ -37,3 +38,4 @@ Go webserver to store movies/series ratings and comments by me and my gf
 - [X] Create valid database and debug database
 - [X] Make flag for debuging as well as a database for debugging
 - [X] Upload button could be download image from (https://img.youtube.com/vi/9V0gyIZuUcg/hqdefault.jpg) since all movies are on youtube
+- [X] Fix information in movies directory
