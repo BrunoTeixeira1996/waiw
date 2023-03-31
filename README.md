@@ -4,7 +4,6 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Upload button could be download image from (https://img.youtube.com/vi/9V0gyIZuUcg/hqdefault.jpg) since all movies are on youtube
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
@@ -37,3 +36,4 @@ Go webserver to store movies/series ratings and comments by me and my gf
   - If bruno inserts comments twice, rafaela can't insert more so I need to validate this
 - [X] Create valid database and debug database
 - [X] Make flag for debuging as well as a database for debugging
+- [X] Upload button could be download image from (https://img.youtube.com/vi/9V0gyIZuUcg/hqdefault.jpg) since all movies are on youtube
