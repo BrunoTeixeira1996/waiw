@@ -4,7 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Resize images to the same size
+- [] Upload button could be download image from (https://img.youtube.com/vi/9V0gyIZuUcg/hqdefault.jpg) since all movies are on youtube
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
