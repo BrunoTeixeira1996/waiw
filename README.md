@@ -4,6 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
+- [] Resize images to the same size
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
