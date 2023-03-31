@@ -3,8 +3,10 @@ package utils
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"regexp"
@@ -182,15 +184,31 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 		case "POST":
 			// Get image name and save in /assets/image/ folder
 			im := func() string {
-				image, handler, err := r.FormFile("myFile")
-				if err != nil {
-					log.Println("Error retrieved the image file:", err)
-					return ""
-				}
-				defer image.Close()
-				if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
-					log.Println("Error, file type not allowed")
-					return ""
+				var (
+					imageLink string
+					imageFile multipart.File
+					handler   *multipart.FileHeader
+					image     io.Reader
+					err       error
+				)
+
+				// Prefer youtube link
+				if len(r.FormValue("limg")) > 0 {
+					imageLink = r.FormValue("limg")
+
+					// Otherwise, use the upload button
+				} else {
+					imageFile, handler, err = r.FormFile("myFile")
+					if err != nil {
+						log.Println("Error retrieved the image file:", err)
+						return ""
+					}
+					defer imageFile.Close()
+
+					if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
+						log.Println("Error, file type not allowed")
+						return ""
+					}
 				}
 
 				path, err := os.Getwd()
@@ -205,6 +223,22 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					return ""
 				}
 				defer newImage.Close()
+
+				// Image will be based on upload button or link input
+				switch {
+
+				case len(imageLink) > 0:
+					res, err := http.Get(imageLink)
+					if err != nil {
+						log.Printf("Error while querying %s\n", imageLink)
+					}
+
+					defer res.Body.Close()
+					image = res.Body
+
+				case len(handler.Filename) > 0:
+					image = imageFile
+				}
 
 				imageBytes, err := ioutil.ReadAll(image)
 				if err != nil {
