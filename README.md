@@ -4,7 +4,7 @@ Go webserver to store movies/series ratings and comments by me and my gf
 
 # TODO
 
-- [] Fix selection in navbar, so when we are in /movies just select movies as blue and not home
+- [] Expand same logic from movies but now to series and animes
 - [X] Change movie?id=1 layout
   - [X] Comment once, if there's a comment for bruno and rafaela just don't show comment and rating html tags
   - [] Make editable comment and rating
