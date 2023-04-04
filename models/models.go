@@ -15,9 +15,10 @@ type Db struct {
 
 // Struct that represents a webpage
 type Page struct {
-	Title string
-	Any   any
-	Error any
+	Title  string
+	Active map[string]string
+	Any    any
+	Error  any
 }
 
 // Struct that represents a movie

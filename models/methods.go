@@ -6,6 +6,33 @@ import (
 	"regexp"
 )
 
+// Choose active endpoint
+func (p *Page) LoadActiveEndpoint(endpoint string) error {
+	switch endpoint {
+	case "Home":
+		p.Active = map[string]string{
+			"Home": "active",
+		}
+	case "Movies":
+		p.Active = map[string]string{
+			"Movies": "active",
+		}
+	case "Series":
+		p.Active = map[string]string{
+			"Series": "active",
+		}
+	case "Upload":
+		p.Active = map[string]string{
+			"Upload": "active",
+		}
+
+	default:
+		return fmt.Errorf("%s does not exist\n", endpoint)
+	}
+
+	return nil
+}
+
 // Connect to database
 func (c *Db) Connect() error {
 	c.Con, c.Err = sql.Open("sqlite3", c.Location)
@@ -51,7 +78,7 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 }
 
 // Query a movie
-func (c *Db) QueryMovie(movieId string, title string, movies *[]Movie, movieRating []MovieRating) error {
+func (c *Db) QueryMovie(movieId string, title *string, movies *[]Movie, movieRating []MovieRating) error {
 	if regexp.MustCompile(`\d`).MatchString(movieId) {
 		if err := c.QueryAllFromMovies("select * from movies where id = ?", movies, movieId); err != nil {
 			return fmt.Errorf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
@@ -66,7 +93,7 @@ func (c *Db) QueryMovie(movieId string, title string, movies *[]Movie, movieRati
 	// Adds movieRating to the rating of a certain movie
 	(*movies)[0].MovieRating = movieRating
 	// Adds title of the page according to the respective movie
-	title = (*movies)[0].Title
+	*title = (*movies)[0].Title
 
 	return nil
 

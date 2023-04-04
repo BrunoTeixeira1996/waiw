@@ -19,14 +19,17 @@
 <div class="header">
 <nav>
   <ul class="nav nav-pills pull-right">
-    <li role="presentation" class="active">
+    <li role="presentation" class="{{ .Active.Home }}">
       <a href="/">Home</a>
     </li>
-    <li role="presentation">
+    <li role="presentation" class="{{ .Active.Movies }}">
       <a href="/movies">Movies</a>
     </li>
-    <li role="presentation">
+    <li role="presentation" class="{{ .Active.Series }}">
       <a href="/series">Series</a>
+    </li>
+   <li role="presentation" class="{{ .Active.Upload }}">
+      <a href="/upload">Upload</a>
     </li>
       </ul>
     </nav>

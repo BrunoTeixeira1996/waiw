@@ -22,6 +22,8 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 		page := models.Page{
 			Title: "Home",
 		}
+		page.LoadActiveEndpoint("Home")
+
 		baseTemplate.Execute(w, page)
 	}
 }
@@ -62,7 +64,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 			// List respective movie based on movieId
 			if movieId != "" {
-				if err := db.QueryMovie(movieId, title, &movies, movieRating); err != nil {
+				if err := db.QueryMovie(movieId, &title, &movies, movieRating); err != nil {
 					log.Println("Error while querying a movie:", err)
 					return
 				}
@@ -80,6 +82,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				Any:   movies,
 				Error: template.HTML(alertDanger),
 			}
+			page.LoadActiveEndpoint("Movies")
 
 			baseTemplate.Execute(w, page)
 
@@ -179,6 +182,9 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			page := models.Page{
 				Title: "Upload",
 			}
+
+			page.LoadActiveEndpoint("Upload")
+
 			baseTemplate.Execute(w, page)
 
 		case "POST":
@@ -292,6 +298,8 @@ func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 		page := models.Page{
 			Title: "Series",
 		}
+		page.LoadActiveEndpoint("Series")
 		baseTemplate.Execute(w, page)
+
 	}
 }
