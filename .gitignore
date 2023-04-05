@@ -1,2 +1,3 @@
 /prod/*
 /assets/images/upload*
+/dev/dev_database.db
