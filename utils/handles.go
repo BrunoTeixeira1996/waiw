@@ -292,7 +292,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 	}
 }
 
-// Handles "/movies"
+// Handles "/series"
 func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page := models.Page{
