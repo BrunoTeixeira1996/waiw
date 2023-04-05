@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -14,16 +13,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func isFlagPassed(name string) bool {
-	found := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
-}
-
 // Handles the exit signal
 func handleExit(exit chan bool) {
 	ch := make(chan os.Signal, 5)
@@ -34,16 +23,19 @@ func handleExit(exit chan bool) {
 }
 
 // Starts the web server
-func startServer(currentPath string, debugFlag bool) error {
+func startServer(currentPath string, databasePath string) error {
 
 	db := &models.Db{}
 
+	db.Location = databasePath
+
 	// Check if its in debug mode
-	if debugFlag {
-		db.Location = "/home/brun0/Desktop/personal/waiw/dev_database.db"
-	} else {
-		db.Location = "/home/brun0/Desktop/personal/waiw/prod_database.db"
-	}
+	// FIXME: need to create somethign so we know it's in debug mode
+	// if debugFlag {
+	//
+	// } else {
+	//
+	// }
 
 	// Handle exit
 	exit := make(chan bool)
@@ -90,15 +82,34 @@ func startServer(currentPath string, debugFlag bool) error {
 
 // Function that handles the errors
 func run() error {
-	debugFlag := flag.Bool("debug", false, "use this if you just want to use the debug database")
-	flag.Parse()
+	// debugFlag := flag.Bool("debug", false, "use this if you just want to use the debug")
+	//flag.Parse()
+
+	checkArgs := func() error {
+		if len(os.Args) < 3 {
+			return fmt.Errorf("Wrong nº of args, use ./waiw -db '<path>'\n")
+		}
+		if os.Args[1] != "-db" {
+			return fmt.Errorf("Please provide the database full path using -db '<path>'\n")
+		}
+
+		if _, err := os.Stat(os.Args[2]); err != nil {
+			return fmt.Errorf("Database file does not exist\n")
+		}
+
+		return nil
+	}
+
+	if err := checkArgs(); err != nil {
+		return err
+	}
 
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	err = startServer(currentPath, *debugFlag)
+	err = startServer(currentPath, os.Args[2])
 	if err != nil {
 		return err
 	}
