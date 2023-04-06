@@ -33,6 +33,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 	var (
 		movies       []models.Movie
 		movieRating  []models.MovieRating
+		users        []models.User
 		title        string
 		alertDanger  string
 		emptyInputs  bool
@@ -68,6 +69,11 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					log.Println("Error while querying a movie:", err)
 					return
 				}
+				// Get users in database
+				if err := db.GetAvailableUsers(&users); err != nil {
+					log.Println("Error while querying users:", err)
+					return
+				}
 
 			} else {
 				// List all movies
@@ -80,6 +86,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			page := models.Page{
 				Title: title,
 				Any:   movies,
+				Users: users,
 				Error: template.HTML(alertDanger),
 			}
 			page.LoadActiveEndpoint("Movies")
@@ -87,9 +94,12 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			baseTemplate.Execute(w, page)
 
 			// Cleaning slices since they are pointers, or they will get dup values as well as the alert
-			alertDanger = ""
-			movies = nil
-			movieRating = nil
+			func() {
+				alertDanger = ""
+				movies = nil
+				movieRating = nil
+				users = nil
+			}()
 
 		case "POST":
 			// Gather user inputs

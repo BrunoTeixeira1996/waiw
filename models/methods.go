@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-// Choose active endpoint
+// Choose active endpoint to use selection in navbar
 func (p *Page) LoadActiveEndpoint(endpoint string) error {
 	switch endpoint {
 	case "Home":
@@ -123,6 +123,29 @@ func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, para
 		}
 
 		*movieRatings = append(*movieRatings, r)
+	}
+
+	return nil
+}
+
+// Get available users
+func (c *Db) GetAvailableUsers(users *[]User) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query("select * from users"); c.Err != nil {
+		return fmt.Errorf("Error while getting available users from database: %w", c.Err)
+	}
+
+	for c.Rows.Next() {
+		var user User
+		if c.Err = c.Rows.Scan(&user.Id, &user.Username); c.Err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		}
+
+		*users = append(*users, user)
 	}
 
 	return nil

@@ -17,7 +17,8 @@ type Db struct {
 type Page struct {
 	Title  string
 	Active map[string]string
-	Any    any
+	Any    any //movies, series, animes, ...
+	Users  []User
 	Error  any
 }
 
