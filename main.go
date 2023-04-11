@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 	"github.com/BrunoTeixeira1996/waiw/utils"
@@ -22,8 +23,28 @@ func handleExit(exit chan bool) {
 	exit <- true
 }
 
+// Function that logs every request
+func requestLogger(targetMux http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		targetMux.ServeHTTP(w, r)
+
+		// log request by who(IP address)
+		requesterIP := r.RemoteAddr
+
+		log.Printf(
+			"%s\t\t%s\t\t%s\t\t%v",
+			r.Method,
+			r.RequestURI,
+			requesterIP,
+			time.Since(start),
+		)
+	})
+}
+
 // Starts the web server
-func startServer(currentPath string, databasePath string) error {
+func startServer(currentPath string, databasePath string, debugFlag bool) error {
 
 	db := &models.Db{}
 
@@ -60,17 +81,21 @@ func startServer(currentPath string, databasePath string) error {
 	mux.HandleFunc("/movie", utils.MoviesHandle(movieTemplate, db))
 	mux.HandleFunc("/series", utils.SeriesHandle(seriesTemplate))
 
-	httpServer := &http.Server{
-		Addr:    "127.0.0.1:8080",
-		Handler: mux,
-	}
-
 	// HTTP Server
 	go func() {
-		err := httpServer.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			// If the server cannot start, just panic
-			panic("Error trying to start http server: " + err.Error())
+		switch {
+		// DEBUG Mode
+		case debugFlag:
+			err := http.ListenAndServe(":8080", requestLogger(mux))
+			if err != nil && err != http.ErrServerClosed {
+				panic("Error trying to start http server: " + err.Error())
+			}
+
+		case !debugFlag:
+			err := http.ListenAndServe(":8080", mux)
+			if err != nil && err != http.ErrServerClosed {
+				panic("Error trying to start http server: " + err.Error())
+			}
 		}
 	}()
 
@@ -82,8 +107,7 @@ func startServer(currentPath string, databasePath string) error {
 
 // Function that handles the errors
 func run() error {
-	// debugFlag := flag.Bool("debug", false, "use this if you just want to use the debug")
-	//flag.Parse()
+	debugFlag := false
 
 	checkArgs := func() error {
 		if len(os.Args) < 3 {
@@ -95,6 +119,15 @@ func run() error {
 
 		if _, err := os.Stat(os.Args[2]); err != nil {
 			return fmt.Errorf("Database file does not exist\n")
+		}
+
+		if len(os.Args) > 4 {
+			return fmt.Errorf("Wrong nº of args, use ./waiw -db '<path>'\n")
+		}
+
+		if len(os.Args) == 4 && os.Args[3] == "-debug" {
+			log.Println("DEBUG MODE")
+			debugFlag = true
 		}
 
 		return nil
@@ -109,7 +142,7 @@ func run() error {
 		return err
 	}
 
-	err = startServer(currentPath, os.Args[2])
+	err = startServer(currentPath, os.Args[2], debugFlag)
 	if err != nil {
 		return err
 	}
