@@ -10,6 +10,8 @@ import (
 	"os/signal"
 	"time"
 
+	cp "github.com/otiai10/copy"
+
 	"github.com/BrunoTeixeira1996/waiw/models"
 	"github.com/BrunoTeixeira1996/waiw/utils"
 	_ "github.com/lib/pq"
@@ -127,6 +129,14 @@ func run() error {
 
 	// if its gokrazy (postgresql)
 	if *gokrazyFlag {
+		// TODO: It would be better to use move instead of copy
+		// copy required folders to /pem
+		errAssets := cp.Copy("/etc/waiw/assets", "/perm/home/waiw/assets")
+		errTemplates := cp.Copy("/etc/waiw/templates", "/perm/home/waiw/templates")
+		if errAssets != nil || errTemplates != nil {
+			return err
+		}
+
 		dbString = "host=" + *ipFlag + " port=5432 user=" + *userFlag + " password=" + *passwordFlag + " dbname=" + *dbNameFlag + " sslmode=disable"
 		dbType = "postgres"
 
