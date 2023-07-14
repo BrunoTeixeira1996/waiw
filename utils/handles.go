@@ -137,14 +137,14 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			var user models.User
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
-				if err := db.SetUser("select * from users where username = ?", author, &user); err != nil {
+				if err := db.SetUser("select * from users where username = $1", author, &user); err != nil {
 					log.Println("Error while seting user:", err)
 					return
 				}
 
 				// Verify if this user already commented
 				userHasCommented := func() bool {
-					yes, err := db.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = ? and users.id = ?", movieId, user.Id)
+					yes, err := db.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = $1 and users.id = $2", movieId, user.Id)
 					if err != nil {
 						log.Println("Error while checking if user already commented on movie:", err)
 						return false
@@ -166,7 +166,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				}
 
 				// Insert in database the comments and ratings
-				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES (?,?,?,?)", movieId, user.Id, choosenRating, comments); err != nil {
+				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
 					log.Println("Error while inserting movie comment:", err)
 					return
 				}
@@ -198,6 +198,27 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			baseTemplate.Execute(w, page)
 
 		case "POST":
+			movie := models.Movie{
+				Title:       r.FormValue("title"),
+				Sinopse:     r.FormValue("area_1"),
+				Genre:       r.FormValue("genre"),
+				Imdb_Rating: r.FormValue("imdb"),
+				Launch_Date: r.FormValue("ldate"),
+				View_Date:   r.FormValue("vdate"),
+			}
+
+			// validate all fields from movie
+			if err := movie.ValidateFieldsInUpload(); err != nil {
+				alertDanger := fmt.Sprintf("<p class='alert alert-danger'>  %s </p>", err)
+				page := models.Page{
+					Title: "Upload",
+					Error: template.HTML(alertDanger),
+				}
+				baseTemplate.Execute(w, page)
+				return
+			}
+
+			// if everything works fine now download the image otherwise we would have dead images even when we failed uploading a movie
 			// Get image name and save in /assets/image/ folder
 			im := func() string {
 				var (
@@ -269,15 +290,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				return im[len(im)-1]
 			}
 
-			movie := models.Movie{
-				Title:       r.FormValue("title"),
-				Image:       im(),
-				Sinopse:     r.FormValue("area_1"),
-				Genre:       r.FormValue("genre"),
-				Imdb_Rating: r.FormValue("imdb"),
-				Launch_Date: r.FormValue("ldate"),
-				View_Date:   r.FormValue("vdate"),
-			}
+			movie.Image = im()
 
 			if hasEmpty, emptyAttr := movie.HasEmptyAttr(); hasEmpty {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
@@ -289,7 +302,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				return
 			}
 
-			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES (?,?,?,?,?,?,?)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
+			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
 				log.Println("Error while inserting new movie:", err)
 				return
 			}

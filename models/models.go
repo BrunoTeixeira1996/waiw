@@ -7,6 +7,7 @@ import (
 // Struct that represents a Db
 type Db struct {
 	Location string
+	Type     string
 	Con      *sql.DB
 	Err      error
 	Rows     *sql.Rows

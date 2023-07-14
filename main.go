@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/BrunoTeixeira1996/waiw/models"
 	"github.com/BrunoTeixeira1996/waiw/utils"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -44,19 +46,12 @@ func requestLogger(targetMux http.Handler) http.Handler {
 }
 
 // Starts the web server
-func startServer(currentPath string, databasePath string, debugFlag bool) error {
+func startServer(currentPath string, databasePath string, debugFlag bool, dbType string) error {
 
 	db := &models.Db{}
 
 	db.Location = databasePath
-
-	// Check if its in debug mode
-	// FIXME: need to create somethign so we know it's in debug mode
-	// if debugFlag {
-	//
-	// } else {
-	//
-	// }
+	db.Type = dbType
 
 	// Handle exit
 	exit := make(chan bool)
@@ -107,42 +102,55 @@ func startServer(currentPath string, databasePath string, debugFlag bool) error 
 
 // Function that handles the errors
 func run() error {
-	debugFlag := false
+	// host=192.168.30.171 port=5432 user=root password=toor dbname=waiw sslmode=disable
+	var gokrazyFlag = flag.Bool("gokrazy", false, "use this if you are using gokrazy (note that this works with postgresql not sqlite)")
+	var userFlag = flag.String("user", "", "-user='root'")
+	var passwordFlag = flag.String("password", "", "-password='12345'")
+	var ipFlag = flag.String("ip", "", "-ip='<ip where is postgresql database>'")
+	var dbNameFlag = flag.String("dbname", "", "-dbname='<name of database to connect>'")
 
-	checkArgs := func() error {
-		if len(os.Args) < 3 {
-			return fmt.Errorf("Wrong nº of args, use ./waiw -db '<path>'\n")
-		}
-		if os.Args[1] != "-db" {
-			return fmt.Errorf("Please provide the database full path using -db '<path>'\n")
-		}
+	var localFlag = flag.String("db", "", "-db='/prod/database.db' (note that this works with sqlite3 not postgresql)")
 
-		if _, err := os.Stat(os.Args[2]); err != nil {
-			return fmt.Errorf("Database file does not exist\n")
-		}
+	var debugFlag = flag.String("debug", "", "-debug='/dev/database.db' to enter in debug mode with dev database (note that this works with sqlite3 not postgresql)")
 
-		if len(os.Args) > 4 {
-			return fmt.Errorf("Wrong nº of args, use ./waiw -db '<path>'\n")
-		}
+	flag.Parse()
 
-		if len(os.Args) == 4 && os.Args[3] == "-debug" {
-			log.Println("DEBUG MODE")
-			debugFlag = true
-		}
+	var dbString string
+	var dbType string
 
-		return nil
-	}
-
-	if err := checkArgs(); err != nil {
-		return err
-	}
+	isDebug := false
 
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	err = startServer(currentPath, os.Args[2], debugFlag)
+	// if its gokrazy (postgresql)
+	if *gokrazyFlag {
+		dbString = "host=" + *ipFlag + " port=5432 user=" + *userFlag + " password=" + *passwordFlag + " dbname=" + *dbNameFlag + " sslmode=disable"
+		dbType = "postgres"
+
+		// if its a local db file (sqlite)
+	} else if len(*localFlag) > 0 {
+		if _, err := os.Stat(*localFlag); err != nil {
+			return fmt.Errorf("Database file does not exist\n")
+		}
+
+		dbType = "sqlite3"
+		dbString = *localFlag
+
+		// if its debug (sqlite)
+	} else {
+		if _, err := os.Stat(*debugFlag); err != nil {
+			return fmt.Errorf("Database file does not exist\n")
+		}
+
+		dbType = "sqlite"
+		dbString = *debugFlag
+		isDebug = true
+	}
+
+	err = startServer(currentPath, dbString, isDebug, dbType)
 	if err != nil {
 		return err
 	}

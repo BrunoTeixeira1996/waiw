@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
+	"strconv"
+	"time"
 )
 
 // Choose active endpoint to use selection in navbar
@@ -35,7 +37,7 @@ func (p *Page) LoadActiveEndpoint(endpoint string) error {
 
 // Connect to database
 func (c *Db) Connect() error {
-	c.Con, c.Err = sql.Open("sqlite3", c.Location)
+	c.Con, c.Err = sql.Open(c.Type, c.Location)
 	if c.Err != nil {
 		return fmt.Errorf("Error while connecting to database: %w", c.Err)
 	}
@@ -80,12 +82,12 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 // Query a movie
 func (c *Db) QueryMovie(movieId string, title *string, movies *[]Movie, movieRating []MovieRating) error {
 	if regexp.MustCompile(`\d`).MatchString(movieId) {
-		if err := c.QueryAllFromMovies("select * from movies where id = ?", movies, movieId); err != nil {
+		if err := c.QueryAllFromMovies("select * from movies where id = $1", movies, movieId); err != nil {
 			return fmt.Errorf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
 		}
 
 		// Gathers comments and ratings about specific movie
-		if err := c.QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = ?", &movieRating, movieId); err != nil {
+		if err := c.QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = $1", &movieRating, movieId); err != nil {
 			return fmt.Errorf("Error while QueryCommentsAndRatings for movie id=%s\n", movieId)
 		}
 	}
@@ -243,4 +245,27 @@ func (m *Movie) HasEmptyAttr() (bool, string) {
 	}
 
 	return false, ""
+}
+
+// Validates fields of movie for the Upload Handle
+func (m *Movie) ValidateFieldsInUpload() error {
+	genreHasNumber := regexp.MustCompile(`\d`).MatchString(m.Genre)
+	if genreHasNumber {
+		return fmt.Errorf("Genre must be a string, not a number")
+	}
+	if _, err := strconv.Atoi(m.Imdb_Rating); err != nil {
+		return fmt.Errorf("Imdb Rating must be a number, not a string")
+	}
+
+	currentYear := time.Now().Year()
+	intLaunchDate, _ := strconv.Atoi(m.Launch_Date)
+	intViewDate, _ := strconv.Atoi(m.View_Date)
+
+	if intLaunchDate > currentYear {
+		return fmt.Errorf("Not a valid launch date year")
+	}
+	if intViewDate > currentYear || intViewDate < intLaunchDate {
+		return fmt.Errorf("Not a valid view date year")
+	}
+	return nil
 }
