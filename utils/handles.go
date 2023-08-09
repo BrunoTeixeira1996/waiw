@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -280,7 +279,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				}
 
 				// TODO: update from ioutil to io
-				imageBytes, err := ioutil.ReadAll(image)
+				imageBytes, err := io.ReadAll(image)
 				if err != nil {
 					log.Println("Error while reading the contents of the uploaded image:", err)
 					return ""
