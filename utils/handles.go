@@ -68,6 +68,8 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					log.Println("Error while querying a movie:", err)
 					return
 				}
+				log.Println("Opened movie:", title)
+
 				// Get users in database
 				if err := db.GetAvailableUsers(&users); err != nil {
 					log.Println("Error while querying users:", err)
@@ -171,6 +173,8 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					return
 				}
 			}
+
+			log.Printf("User %s added comment to movieid %s\n", user.Username, movieId)
 
 			// Redirects to GET
 			http.Redirect(w, r, r.Header.Get("Referer"), 302)
@@ -278,7 +282,6 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					image = imageFile
 				}
 
-				// TODO: update from ioutil to io
 				imageBytes, err := io.ReadAll(image)
 				if err != nil {
 					log.Println("Error while reading the contents of the uploaded image:", err)
@@ -314,6 +317,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				Title: "Upload",
 			}
 			baseTemplate.Execute(w, page)
+			log.Println("Added movie:", movie.Title)
 		}
 	}
 }
