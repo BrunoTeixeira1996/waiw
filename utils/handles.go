@@ -131,6 +131,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				cookie := http.Cookie{Name: "error_cookie", Value: emptyAttr}
 				http.SetCookie(w, &cookie)
 				http.Redirect(w, r, r.Header.Get("Referer"), 302)
+				log.Println("There are empty attributes:", emptyAttr)
 				return
 			}
 
@@ -215,10 +216,11 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					Error: template.HTML(alertDanger),
 				}
 				baseTemplate.Execute(w, page)
+				log.Println("Error while validating all fields in the upload:", err)
 				return
 			}
 
-			// if everything works fine now download the image otherwise we would have dead images even when we failed uploading a movie
+			// if everything works fine, download the image otherwise we would have dead images even when we failed uploading a movie
 			// Get image name and save in /assets/image/ folder
 			im := func() string {
 				var (
@@ -243,7 +245,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					defer imageFile.Close()
 
 					if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
-						log.Println("Error, file type not allowed")
+						log.Println("Error, file type not allowed when uploading image")
 						return ""
 					}
 				}
@@ -267,7 +269,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				case len(imageLink) > 0:
 					res, err := http.Get(imageLink)
 					if err != nil {
-						log.Printf("Error while querying %s\n", imageLink)
+						log.Println("Error while querying the image:", imageLink)
 					}
 
 					defer res.Body.Close()
@@ -277,6 +279,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					image = imageFile
 				}
 
+				// TODO: update from ioutil to io
 				imageBytes, err := ioutil.ReadAll(image)
 				if err != nil {
 					log.Println("Error while reading the contents of the uploaded image:", err)
@@ -299,6 +302,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 					Error: template.HTML(alertDanger),
 				}
 				baseTemplate.Execute(w, page)
+				log.Println("There are empty attributes when uploading a movie:", emptyAttr)
 				return
 			}
 
