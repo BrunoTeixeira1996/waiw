@@ -1,4 +1,4 @@
-package utils
+package internal
 
 import (
 	"fmt"
@@ -11,14 +11,12 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/BrunoTeixeira1996/waiw/models"
 )
 
 // Handles "/"
 func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := models.Page{
+		page := Page{
 			Title: "Home",
 		}
 		page.LoadActiveEndpoint("Home")
@@ -28,11 +26,11 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 }
 
 // Handles "/movies"
-func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
+func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 	var (
-		movies       []models.Movie
-		movieRating  []models.MovieRating
-		users        []models.User
+		movies       []Movie
+		movieRating  []MovieRating
+		users        []User
 		title        string
 		alertDanger  string
 		emptyInputs  bool
@@ -84,7 +82,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				title = "Movies"
 			}
 
-			page := models.Page{
+			page := Page{
 				Title: title,
 				Any:   movies,
 				Users: users,
@@ -136,7 +134,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				return
 			}
 
-			var user models.User
+			var user User
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
 				if err := db.SetUser("select * from users where username = $1", author, &user); err != nil {
@@ -183,7 +181,7 @@ func MoviesHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 }
 
 // Handles "/upload"
-func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFunc {
+func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 	var allowedImageTypes = map[string]int{
 		"image/png":  1,
 		"image/jpeg": 2,
@@ -193,7 +191,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
-			page := models.Page{
+			page := Page{
 				Title: "Upload",
 			}
 
@@ -202,7 +200,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			baseTemplate.Execute(w, page)
 
 		case "POST":
-			movie := models.Movie{
+			movie := Movie{
 				Title:       r.FormValue("title"),
 				Sinopse:     r.FormValue("area_1"),
 				Genre:       r.FormValue("genre"),
@@ -214,7 +212,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 			// validate all fields from movie
 			if err := movie.ValidateFieldsInUpload(); err != nil {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'>  %s </p>", err)
-				page := models.Page{
+				page := Page{
 					Title: "Upload",
 					Error: template.HTML(alertDanger),
 				}
@@ -299,7 +297,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 
 			if hasEmpty, emptyAttr := movie.HasEmptyAttr(); hasEmpty {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
-				page := models.Page{
+				page := Page{
 					Title: "Upload",
 					Error: template.HTML(alertDanger),
 				}
@@ -313,7 +311,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 				return
 			}
 
-			page := models.Page{
+			page := Page{
 				Title: "Upload",
 			}
 			baseTemplate.Execute(w, page)
@@ -325,7 +323,7 @@ func UploadHandle(baseTemplate *template.Template, db *models.Db) http.HandlerFu
 // Handles "/series"
 func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := models.Page{
+		page := Page{
 			Title: "Series",
 		}
 		page.LoadActiveEndpoint("Series")

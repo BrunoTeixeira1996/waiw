@@ -12,8 +12,7 @@ import (
 
 	cp "github.com/otiai10/copy"
 
-	"github.com/BrunoTeixeira1996/waiw/models"
-	"github.com/BrunoTeixeira1996/waiw/utils"
+	"github.com/BrunoTeixeira1996/waiw/internal"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -50,7 +49,7 @@ func requestLogger(targetMux http.Handler) http.Handler {
 // Starts the web server
 func startServer(currentPath string, databasePath string, debugFlag bool, dbType string) error {
 
-	db := &models.Db{}
+	db := &internal.Db{}
 
 	db.Location = databasePath
 	db.Type = dbType
@@ -71,12 +70,12 @@ func startServer(currentPath string, databasePath string, debugFlag bool, dbType
 	fs := http.FileServer(http.Dir("assets"))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	mux.HandleFunc("/", utils.IndexHandle(baseTemplate))
-	mux.HandleFunc("/upload", utils.UploadHandle(uploadTemplate, db))
+	mux.HandleFunc("/", internal.IndexHandle(baseTemplate))
+	mux.HandleFunc("/upload", internal.UploadHandle(uploadTemplate, db))
 
-	mux.HandleFunc("/movies", utils.MoviesHandle(moviesTemplate, db))
-	mux.HandleFunc("/movie", utils.MoviesHandle(movieTemplate, db))
-	mux.HandleFunc("/series", utils.SeriesHandle(seriesTemplate))
+	mux.HandleFunc("/movies", internal.MoviesHandle(moviesTemplate, db))
+	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate, db))
+	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate))
 
 	// HTTP Server
 	go func() {
