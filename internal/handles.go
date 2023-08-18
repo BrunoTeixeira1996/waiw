@@ -360,19 +360,19 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 			}
 
 			ptwTemp := struct {
-				Movies []string
-				Series []string
-				Animes []string
+				Movies []Ptw
+				Series []Ptw
+				Animes []Ptw
 			}{}
 
 			for _, v := range sptw {
 				switch v.Category.Name {
 				case "Movie":
-					ptwTemp.Movies = append(ptwTemp.Movies, v.Name)
+					ptwTemp.Movies = append(ptwTemp.Movies, v)
 				case "Serie":
-					ptwTemp.Series = append(ptwTemp.Series, v.Name)
+					ptwTemp.Series = append(ptwTemp.Series, v)
 				case "Anime":
-					ptwTemp.Animes = append(ptwTemp.Animes, v.Name)
+					ptwTemp.Animes = append(ptwTemp.Animes, v)
 				}
 			}
 

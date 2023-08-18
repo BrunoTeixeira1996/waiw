@@ -46,6 +46,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				sptw = nil
 			}()
 
+			// Inserting record to database
 		case "POST":
 			d := json.NewDecoder(r.Body)
 			d.DisallowUnknownFields() // error if user sends extra data
@@ -89,6 +90,34 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			}
 
 			writeJsonResponseToClient(w, http.StatusOK, "Added new plan to watch")
+
+			// Removing record from database
+		case "DELETE":
+			writeJsonResponseToClient(w, http.StatusNotImplemented, "Not implemented yet")
+			// TODO
+			// I could use POST in the buttons that delete each entry for the ptw but DELETE its the correct way so I
+			// need to use a different approach
+			// In this case I will create the method (methods.go) that deletes an entry for the ptw and then I will be listening here
+			// for DELETE requests (that will be made from the ptw.html in a javascript function)
+			// something like this one
+			/*
+				   <script>
+					  function remove_entry(){
+					      var entry = {id:event.srcElement.id};
+
+					      fetch(`${window.origin}/api/ptw`,{
+						  method: "DELETE",
+						  credentials: "include",
+						  body: JSON.stringify(entry),
+						  cache: "no-cache",
+						  headers: new Headers({
+						      "content-type":"application/json"
+						  })
+					      })
+
+					  }
+					</script>
+			*/
 		}
 	}
 }
