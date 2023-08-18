@@ -29,6 +29,29 @@ FOREIGN KEY(movie_id) REFERENCES movies(id),
 FOREIGN KEY(user_id) REFERENCES users(id),
 FOREIGN KEY(rating_id) REFERENCES ratings(id));
 
+
+CREATE TABLE category (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name VARCHAR NOT NULL);
+
+
+CREATE TABLE plan_to_watch (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name VARCHAR,
+category_id INTEGER,
+FOREIGN KEY(category_id) REFERENCES category(id));
+
+
+INSERT INTO category VALUES(1,'Movie');
+INSERT INTO category VALUES(2,'Serie');
+INSERT INTO category VALUES(3,'Anime');
+
+INSERT INTO plan_to_watch VALUES(1,'Movie123',1);
+INSERT INTO plan_to_watch VALUES(2,'Serie321',2);
+INSERT INTO plan_to_watch VALUES(3,'Serie1234',2);
+INSERT INTO plan_to_watch VALUES(4,'Anime123',3);
+INSERT INTO plan_to_watch VALUES(5,'Movie123444',1);
+
 INSERT INTO movies VALUES(1,'Movie1','image_name','sinopse1','romance','1', 1, 1);
 INSERT INTO movies VALUES(2,'Movie2','image_name','sinopse2', 'horror','2', 2, 2);
 INSERT INTO movies VALUES(3,'Movie3','image_name','sinopse3', 'romance','3',3, 3);
