@@ -5,7 +5,7 @@ Go webserver to store movies/series/animes ratings and comments
 ## Using localy
 
 - Clone the repo
-- Create the database based on `/dev/dev_db.sql` (just remove the INSERTs)
+- Create the database based on `/dev/dev_db.sql` (remove the INSERTs but let the `category` and `ratings` inserts)
 - Run
 
 ``` console
