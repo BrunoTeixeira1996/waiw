@@ -259,7 +259,7 @@ func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
 	}
 	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query("select * from plan_to_watch"); c.Err == sql.ErrNoRows {
+	if c.Rows, c.Err = c.Con.Query("select * from plan_to_watch order by category_id"); c.Err == sql.ErrNoRows {
 		return fmt.Errorf("Error while getting plan to watch entries: %w", c.Err)
 	}
 

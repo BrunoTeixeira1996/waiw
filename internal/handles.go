@@ -332,13 +332,42 @@ func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 }
 
 // Handles "/ptw"
-func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
+func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := Page{
-			Title: "Plan to Watch",
-		}
-		page.LoadActiveEndpoint("PlanToWatch")
+		switch r.Method {
+		case "GET":
+			// Get list of plan to watch from database
+			var sptw []Ptw
+			if err := db.GetPlanToWatch(&sptw); err != nil {
+				log.Println("Error while querying ptw:", err)
+				return
+			}
 
-		baseTemplate.Execute(w, page)
+			ptwTemp := struct {
+				Movies []string
+				Series []string
+				Animes []string
+			}{}
+
+			for _, v := range sptw {
+				switch v.Category.Name {
+				case "Movie":
+					ptwTemp.Movies = append(ptwTemp.Movies, v.Name)
+				case "Serie":
+					ptwTemp.Series = append(ptwTemp.Series, v.Name)
+				case "Animes":
+					ptwTemp.Animes = append(ptwTemp.Animes, v.Name)
+				}
+			}
+
+			page := Page{
+				Title: "Plan to Watch",
+				Any:   ptwTemp,
+			}
+			page.LoadActiveEndpoint("PlanToWatch")
+
+			baseTemplate.Execute(w, page)
+
+		}
 	}
 }

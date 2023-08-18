@@ -2,12 +2,57 @@
 {{ define "content" }}
 
 
-
 <div class="container ">
-<div class="d-flex justify-content-center p-1">
+  <div class="d-flex justify-content-center p-1">
   </div>
   <div class="d-flex justify-content-center text-center p-1">
-    <h1>PTW<h1/>
+    <div align="left">
+      <h3>Insert new plan to watch</h3>
+      <form method="POST" id="newptw">
+	<label for="ptwname"><h4>Name </h4></label>
+	<input type="text" id="ptwname" name="ptwname" value="" required><br>
+	<label for="category">Choose a Category </label>
+	<select name="categories" id="categories" required>
+	  <option selected disabled hidden></option>
+	  <option value="1" >Movie</option>
+	  <option value="2" >Serie</option>
+	  <option value="3" >Anime</option>
+	</select>
+      </form>
+      <br>
+      <div class="form-group">
+	<button class="btn btn-outline-info" type="submit" form="newptw" name="Submit">Add</button>
+      </div>
     </div>
+    <hr>
+
+    <h3 align="left"> Movies </h3>
+    <table>
+      {{ range $movie := .Any.Movies }}
+      <tr>
+	<td>{{ $movie }}</td>
+      </tr>
+      {{ end }}
+    </table>
+
+    <h3 align="left"> Series </h3>
+    <table>
+      {{ range $serie := .Any.Series }}
+      <tr>
+	<td>{{ $serie }}</td>
+      </tr>
+      {{ end }}
+    </table>
+
+    <h3 align="left"> Animes </h3>
+    <table>
+     {{ range $anime := .Any.Animes }}
+      <tr>
+	<td>{{ $anime  }}</td>
+      </tr>
+      {{ end }}
+    </table>
+    <br>
+  </div>
 </div>
 {{ end }}
