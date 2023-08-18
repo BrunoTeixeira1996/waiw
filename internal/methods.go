@@ -27,6 +27,10 @@ func (p *Page) LoadActiveEndpoint(endpoint string) error {
 		p.Active = map[string]string{
 			"Upload": "active",
 		}
+	case "PlanToWatch":
+		p.Active = map[string]string{
+			"PlanToWatch": "active",
+		}
 
 	default:
 		return fmt.Errorf("%s does not exist\n", endpoint)

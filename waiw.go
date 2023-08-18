@@ -66,6 +66,7 @@ func startServer(currentPath string, databasePath string, debugFlag bool, dbType
 	moviesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/movies.html"))
 	movieTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/movie.html"))
 	seriesTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/series.html"))
+	ptwTemplate := template.Must(template.ParseFiles(currentPath+"/templates/base.html", currentPath+"/templates/ptw.html"))
 
 	fs := http.FileServer(http.Dir("assets"))
 
@@ -76,6 +77,7 @@ func startServer(currentPath string, databasePath string, debugFlag bool, dbType
 	mux.HandleFunc("/movies", internal.MoviesHandle(moviesTemplate, db))
 	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate, db))
 	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate))
+	mux.HandleFunc("/ptw", internal.PtwHandle(ptwTemplate))
 
 	mux.HandleFunc("/api/ptw", internal.PtwApiHandle(db))
 

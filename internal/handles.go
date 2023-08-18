@@ -330,3 +330,15 @@ func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 		baseTemplate.Execute(w, page)
 	}
 }
+
+// Handles "/ptw"
+func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := Page{
+			Title: "Plan to Watch",
+		}
+		page.LoadActiveEndpoint("PlanToWatch")
+
+		baseTemplate.Execute(w, page)
+	}
+}
