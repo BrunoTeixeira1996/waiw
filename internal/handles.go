@@ -130,7 +130,7 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				cookie := http.Cookie{Name: "error_cookie", Value: emptyAttr}
 				http.SetCookie(w, &cookie)
 				http.Redirect(w, r, r.Header.Get("Referer"), 302)
-				log.Println("There are empty attributes:", emptyAttr)
+				log.Println("There are empty attributes when inserting a rting:", emptyAttr)
 				return
 			}
 
@@ -333,11 +333,27 @@ func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 // Handles "/ptw"
 func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+	var (
+		alertDanger string
+		emptyInputs bool
+	)
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			// Get list of plan to watch from database
 			var sptw []Ptw
+
+			// Checks if theres a cookie about an error so we can display that in the html
+			c, _ := r.Cookie("error_cookie")
+
+			if emptyInputs {
+				alertDanger = fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", c.Value)
+				cookie := http.Cookie{Name: "error_cookie", Value: "", Expires: time.Unix(0, 0), HttpOnly: true}
+				http.SetCookie(w, &cookie)
+				emptyInputs = false
+			}
+
 			if err := db.GetPlanToWatch(&sptw); err != nil {
 				log.Println("Error while querying ptw:", err)
 				return
@@ -355,7 +371,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 					ptwTemp.Movies = append(ptwTemp.Movies, v.Name)
 				case "Serie":
 					ptwTemp.Series = append(ptwTemp.Series, v.Name)
-				case "Animes":
+				case "Anime":
 					ptwTemp.Animes = append(ptwTemp.Animes, v.Name)
 				}
 			}
@@ -363,11 +379,46 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 			page := Page{
 				Title: "Plan to Watch",
 				Any:   ptwTemp,
+				Error: template.HTML(alertDanger),
 			}
 			page.LoadActiveEndpoint("PlanToWatch")
 
 			baseTemplate.Execute(w, page)
 
+			// Cleans alert cookie
+			alertDanger = ""
+
+		case "POST":
+			ptwname := r.FormValue("ptwname")
+			categoryId := r.Form["categories"]
+
+			hasEmptyAttrs := func() (bool, string) {
+				if ptwname == "" {
+					return true, "Name"
+				}
+				if len(categoryId) == 0 {
+					return true, "Category"
+				}
+
+				return false, ""
+			}
+
+			// Check if all inputs are filled
+			if hasEmpty, emptyAttr := hasEmptyAttrs(); hasEmpty {
+				// Set cookie so GET knows there's an error
+				emptyInputs = true
+				cookie := http.Cookie{Name: "error_cookie", Value: emptyAttr}
+				http.SetCookie(w, &cookie)
+				http.Redirect(w, r, r.Header.Get("Referer"), 302)
+				log.Println("There are empty attributes while inserting plan to watch:", emptyAttr)
+				return
+			}
+
+			if err := db.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
+				log.Println("Error while inserting new plan to watch:", err)
+				return
+			}
+			http.Redirect(w, r, r.Header.Get("Referer"), 302)
 		}
 	}
 }
