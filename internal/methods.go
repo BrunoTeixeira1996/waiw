@@ -220,6 +220,51 @@ func (c *Db) UserAlreadyCommented(q string, params ...any) (bool, error) {
 	return false, nil
 }
 
+// Gets CategoryName from Id
+func (c *Db) GetCategoryName(categoryId int, category *Category) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Err = c.Con.QueryRow("select * from category where id = $1", categoryId).Scan(&category.Id, &category.Name); c.Err != nil {
+		return fmt.Errorf("Error while querying the catory with id %d: %w", categoryId, c.Err)
+	}
+
+	return nil
+}
+
+// Gets  plan to watch entries
+func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query("select * from plan_to_watch"); c.Err == sql.ErrNoRows {
+		return fmt.Errorf("Error while getting plan to watch entries: %w", c.Err)
+	}
+
+	for c.Rows.Next() {
+		var ptw Ptw
+		var category Category
+
+		if c.Err = c.Rows.Scan(&ptw.Id, &ptw.Name, &ptw.Category.Id); c.Err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		}
+
+		if err := c.GetCategoryName(ptw.Category.Id, &category); err != nil {
+			return err
+		}
+
+		ptw.Category = category
+
+		*sptw = append(*sptw, ptw)
+	}
+
+	return nil
+}
+
 // Check if any of movie field is empty
 func (m *Movie) HasEmptyAttr() (bool, string) {
 	if m.Title == "" {

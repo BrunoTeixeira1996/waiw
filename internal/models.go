@@ -48,3 +48,16 @@ type MovieRating struct {
 	Rating   string
 	Comments string
 }
+
+// Struct that represents a Category
+type Category struct {
+	Id   int
+	Name string
+}
+
+// Struct that represents Plan to Watch
+type Ptw struct {
+	Id       int
+	Name     string
+	Category Category
+}

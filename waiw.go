@@ -77,6 +77,8 @@ func startServer(currentPath string, databasePath string, debugFlag bool, dbType
 	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate, db))
 	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate))
 
+	mux.HandleFunc("/api/ptw", internal.PtwApiHandle(db))
+
 	// HTTP Server
 	go func() {
 		switch {

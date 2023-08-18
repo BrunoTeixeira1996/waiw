@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -328,6 +329,41 @@ func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 		}
 		page.LoadActiveEndpoint("Series")
 		baseTemplate.Execute(w, page)
+	}
+}
+
+// GET - returns json object
+// POST -> receives json object and adds to database new entry
+// Handles "/api/ptw"
+func PtwApiHandle(db *Db) http.HandlerFunc {
+	var (
+		sptw []Ptw
+	)
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			w.Header().Set("Content-Type", "application/json")
+
+			if err := db.GetPlanToWatch(&sptw); err != nil {
+				log.Println("Error while querying ptw:", err)
+				return
+			}
+			json.NewEncoder(w).Encode(sptw)
+
+			// This needs to be done or this will have dup information
+			// TODO: there's something better here????
+			func() {
+				sptw = nil
+			}()
+
+		case "POST":
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"status":     "success",
+				"statusCode": 200,
+				"data":       "Posting data",
+			})
+		}
 
 	}
 }
