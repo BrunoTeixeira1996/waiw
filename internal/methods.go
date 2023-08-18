@@ -234,6 +234,20 @@ func (c *Db) GetCategoryName(categoryId int, category *Category) error {
 	return nil
 }
 
+// Gets CategoryId from name
+func (c *Db) GetCategoryId(categoryName string, category *Category) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Err = c.Con.QueryRow("select * from category where name = $1", categoryName).Scan(&category.Id, &category.Name); c.Err != nil {
+		return fmt.Errorf("Error while querying the catory with name %s: %w", categoryName, c.Err)
+	}
+
+	return nil
+}
+
 // Gets  plan to watch entries
 func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
 	if err := c.Connect(); err != nil {
@@ -262,6 +276,18 @@ func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
 		*sptw = append(*sptw, ptw)
 	}
 
+	return nil
+}
+
+func (c *Db) InsertPlanToWatch(q string, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while inserting a new plan to watch: %w", c.Err)
+	}
 	return nil
 }
 
