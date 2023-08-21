@@ -46,6 +46,12 @@
       {{ range $movie := .Any.Movies }}
       <tr>
 	<td style="padding-right:10px">{{ $movie.Name }}</td>
+	<td>
+	  <form>
+	    <button style="padding:2px 4px" id={{ $movie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	  </form>
+	</td>
+
       </tr>
       {{ end }}
     </table>
@@ -55,6 +61,12 @@
       {{ range $serie := .Any.Series }}
       <tr>
 	<td style="padding-right:10px">{{ $serie.Name }}</td>
+	<td>
+	  <form>
+	    <button style="padding:2px 4px" id={{ $serie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	  </form>
+	</td>
+
       </tr>
       {{ end }}
     </table>
