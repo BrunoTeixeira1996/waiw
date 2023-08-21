@@ -122,13 +122,12 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			}
 
 			writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
+			log.Printf("Deleted %s from plan to watch\n", *deletePtw.Id)
 		}
 	}
 }
 
 /*
 TODO:
-   - when adding ptw in gokrazy I have the following error "2023/08/21 11:58:39 Error while deleting plan to watch: Error while inserting a new plan to watch: pq: invalid input syntax for type integer: ""
-   "
    - when I try to delete a record I need to F5 in order to update the view
 */
