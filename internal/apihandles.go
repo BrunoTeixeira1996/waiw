@@ -92,32 +92,35 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			writeJsonResponseToClient(w, http.StatusOK, "Added new plan to watch")
 
 			// Removing record from database
-		case "DELETE":
-			writeJsonResponseToClient(w, http.StatusNotImplemented, "Not implemented yet")
-			// TODO
-			// I could use POST in the buttons that delete each entry for the ptw but DELETE its the correct way so I
-			// need to use a different approach
-			// In this case I will create the method (methods.go) that deletes an entry for the ptw and then I will be listening here
-			// for DELETE requests (that will be made from the ptw.html in a javascript function)
-			// something like this one
-			/*
-				   <script>
-					  function remove_entry(){
-					      var entry = {id:event.srcElement.id};
+		case http.MethodDelete:
+			d := json.NewDecoder(r.Body)
+			d.DisallowUnknownFields() // error if user sends extra data
 
-					      fetch(`${window.origin}/api/ptw`,{
-						  method: "DELETE",
-						  credentials: "include",
-						  body: JSON.stringify(entry),
-						  cache: "no-cache",
-						  headers: new Headers({
-						      "content-type":"application/json"
-						  })
-					      })
+			deletePtw := struct {
+				Id *string `json:"id"`
+			}{}
 
-					  }
-					</script>
-			*/
+			if err := d.Decode(&deletePtw); err != nil {
+				// bad JSON or unrecognized json field
+				log.Println("Error while decoding plan to watch from DELETE:", err)
+				writeJsonResponseToClient(w, http.StatusBadRequest, err.Error())
+				return
+			}
+
+			// Check if theres more than what we want
+			if d.More() {
+				log.Println("Extraneous data after JSON object from DELETE in plan to watch")
+				writeJsonResponseToClient(w, http.StatusBadRequest, "Extraneous data after JSON object")
+				return
+			}
+
+			if err := db.DeletePlanToWatch("delete from plan_to_watch where id = $1", *deletePtw.Id); err != nil {
+				log.Println("Error while deleting plan to watch:", err)
+				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
+				return
+			}
+
+			writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
 		}
 	}
 }

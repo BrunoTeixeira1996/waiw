@@ -295,6 +295,18 @@ func (c *Db) InsertPlanToWatch(q string, params ...any) error {
 	return nil
 }
 
+func (c *Db) DeletePlanToWatch(q string, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while inserting a new plan to watch: %w", c.Err)
+	}
+	return nil
+}
+
 // Check if any of movie field is empty
 func (m *Movie) HasEmptyAttr() (bool, string) {
 	if m.Title == "" {

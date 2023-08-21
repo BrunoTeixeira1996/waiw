@@ -1,6 +1,21 @@
 {{ define "title" }}{{ .Title }}{{ end }}
 {{ define "content" }}
 
+<script>
+  function remove_entry(){
+      var entry = {id:event.srcElement.id};
+
+      fetch(`${window.origin}/api/ptw`,{
+	  method: "DELETE",
+	  credentials: "include",
+	  body: JSON.stringify(entry),
+	  cache: "no-cache",
+	  headers: new Headers({
+	      "content-type":"application/json"
+	  })
+      })
+  }
+</script>
 
 <div class="container ">
   <div class="d-flex justify-content-center p-1">
@@ -21,7 +36,7 @@
       </form>
       <br>
       <div class="form-group">
-	<button class="btn btn-outline-info" type="submit" form="newptw" name="Submit">Add</button>
+	<button class="btn btn-outline-info" type="submit" form="newptw" onclick="remove_entry();" name="Submit">Add</button>
       </div>
     </div>
     <hr>
