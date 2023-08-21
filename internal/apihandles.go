@@ -28,6 +28,8 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 	var (
 		sptw     []Ptw
 		category Category
+		valid    bool
+		err      error
 	)
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +100,8 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			d.DisallowUnknownFields() // error if user sends extra data
 
 			deletePtw := struct {
-				Id *string `json:"id"`
+				Name   *string `json:"name"`
+				Origin *string `json:"origin"`
 			}{}
 
 			if err := d.Decode(&deletePtw); err != nil {
@@ -115,14 +118,30 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				return
 			}
 
-			if err := db.DeletePlanToWatch("delete from plan_to_watch where id = $1", *deletePtw.Id); err != nil {
-				log.Println("Error while deleting plan to watch:", err)
-				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
-				return
-			}
+			// if its from the ui
+			if *deletePtw.Origin == "ui" {
+				if err := db.DeletePlanToWatch("delete from plan_to_watch where id = $1 returning id", *deletePtw.Name); err != nil {
+					log.Println("Error while deleting plan to watch (ui):", err)
+					return
+				}
 
-			writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
-			log.Printf("Deleted %s from plan to watch\n", *deletePtw.Id)
+				log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
+				http.Redirect(w, r, r.Header.Get("Referer"), 302)
+
+				// if its from the api
+			} else {
+
+				if valid, err = db.DeletePlanToWatchApi(*deletePtw.Name); err != nil {
+					log.Println("Error while deleting plan to watch (api):", err)
+					writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
+					return
+				}
+
+				if valid {
+					log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
+					writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
+				}
+			}
 		}
 	}
 }

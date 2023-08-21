@@ -3,7 +3,7 @@
 
 <script>
   function remove_entry(){
-      var entry = {id:event.srcElement.id};
+      var entry = {name:event.srcElement.name,origin:"ui"};
 
       fetch(`${window.origin}/api/ptw`,{
 	  method: "DELETE",
@@ -13,7 +13,7 @@
 	  headers: new Headers({
 	      "content-type":"application/json"
 	  })
-      }).then(window.location.href = `${window.origin}/ptw`)
+      })
   }
 </script>
 
@@ -48,7 +48,7 @@
 	<td style="padding-right:10px">{{ $movie.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" id={{ $movie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" name={{ $movie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
 
@@ -63,7 +63,7 @@
 	<td style="padding-right:10px">{{ $serie.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" id={{ $serie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" name={{ $serie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
 
@@ -78,7 +78,7 @@
 	<td style="padding-right:10px">{{ $anime.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" id={{ $anime.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" name={{ $anime.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
       </tr>

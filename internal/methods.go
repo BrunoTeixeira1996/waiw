@@ -307,6 +307,20 @@ func (c *Db) DeletePlanToWatch(q string, params ...any) error {
 	return nil
 }
 
+func (c *Db) DeletePlanToWatchApi(name string) (bool, error) {
+	if err := c.Connect(); err != nil {
+		return false, err
+	}
+	defer c.Con.Close()
+
+	var recordId sql.NullInt64
+	if c.Err = c.Con.QueryRow("delete from plan_to_watch where name = $1 returning id", name).Scan(&recordId); c.Err != nil {
+		return false, c.Err
+	}
+
+	return recordId.Valid, nil
+}
+
 // Check if any of movie field is empty
 func (m *Movie) HasEmptyAttr() (bool, string) {
 	if m.Title == "" {
