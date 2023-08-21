@@ -21,7 +21,8 @@ func writeJsonResponseToClient(w http.ResponseWriter, statusCode int, status str
 }
 
 // GET - returns json object
-// POST -> receives json object and adds to database new entry
+// POST - receives json object and adds to database new entry
+// DELETE - receives json object with id to delete and deletes from the database
 // Handles "/api/ptw"
 func PtwApiHandle(db *Db) http.HandlerFunc {
 	var (
@@ -31,7 +32,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case "GET":
+		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 
 			if err := db.GetPlanToWatch(&sptw); err != nil {
@@ -47,7 +48,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			}()
 
 			// Inserting record to database
-		case "POST":
+		case http.MethodPost:
 			d := json.NewDecoder(r.Body)
 			d.DisallowUnknownFields() // error if user sends extra data
 

@@ -39,7 +39,7 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case "GET":
+		case http.MethodGet:
 			// Checks if theres a cookie about an error so we can display that in the html
 			c, _ := r.Cookie("error_cookie")
 
@@ -100,7 +100,7 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				users = nil
 			}()
 
-		case "POST":
+		case http.MethodPost:
 			// Gather user inputs
 			comments := r.FormValue("area_1")
 			author := r.FormValue("group_1")
@@ -190,7 +190,7 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case "GET":
+		case http.MethodGet:
 			page := Page{
 				Title: "Upload",
 			}
@@ -199,7 +199,7 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 			baseTemplate.Execute(w, page)
 
-		case "POST":
+		case http.MethodPost:
 			movie := Movie{
 				Title:       r.FormValue("title"),
 				Sinopse:     r.FormValue("area_1"),
@@ -340,7 +340,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case "GET":
+		case http.MethodGet:
 			// Get list of plan to watch from database
 			var sptw []Ptw
 
@@ -388,7 +388,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 			// Cleans alert cookie
 			alertDanger = ""
 
-		case "POST":
+		case http.MethodPost:
 			ptwname := r.FormValue("ptwname")
 			categoryId := r.Form["categories"]
 
