@@ -126,7 +126,8 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				}
 
 				log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
-				http.Redirect(w, r, r.Header.Get("Referer"), 302)
+				http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
+				return
 
 				// if its from the api
 			} else {
@@ -140,6 +141,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				if valid {
 					log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
 					writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
+					return
 				}
 			}
 		}
@@ -148,5 +150,6 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 
 /*
 TODO:
-   - when I try to delete a record I need to F5 in order to update the view
+   - when I try to delete a record I need to F5 in order to update the view (/ptw?11=)
+     - meaning the redirect is not working
 */

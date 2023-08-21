@@ -7,9 +7,7 @@
 
       fetch(`${window.origin}/api/ptw`,{
 	  method: "DELETE",
-	  credentials: "include",
 	  body: JSON.stringify(entry),
-	  cache: "no-cache",
 	  headers: new Headers({
 	      "content-type":"application/json"
 	  })
