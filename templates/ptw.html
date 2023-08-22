@@ -3,9 +3,9 @@
 
 <script>
   function remove_entry(){
-      var entry = {name:event.srcElement.name,origin:"ui"};
+      var entry = {id:event.srcElement.id,origin:"ui"};
 
-      fetch(`${window.origin}/api/ptw`,{
+      fetch(`${window.origin}/ptw`,{
 	  method: "DELETE",
 	  body: JSON.stringify(entry),
 	  headers: new Headers({
@@ -46,7 +46,7 @@
 	<td style="padding-right:10px">{{ $movie.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" name={{ $movie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" id={{ $movie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
 
@@ -61,7 +61,7 @@
 	<td style="padding-right:10px">{{ $serie.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" name={{ $serie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" id={{ $serie.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
 
@@ -76,7 +76,7 @@
 	<td style="padding-right:10px">{{ $anime.Name }}</td>
 	<td>
 	  <form>
-	    <button style="padding:2px 4px" name={{ $anime.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
+	    <button style="padding:2px 4px" id={{ $anime.Id }} type="submit" class="btn btn-danger" onclick="remove_entry();">Delete</button>
 	  </form>
 	</td>
       </tr>
