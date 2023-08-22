@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -339,6 +340,11 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 	)
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			valid bool
+			err   error
+		)
+
 		switch r.Method {
 		case http.MethodGet:
 			// Get list of plan to watch from database
@@ -418,7 +424,49 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				log.Println("Error while inserting new plan to watch:", err)
 				return
 			}
+
+			log.Printf("Added new plan to watch %s from the ui\n", ptwname)
 			http.Redirect(w, r, r.Header.Get("Referer"), 302)
+
+		case http.MethodDelete:
+			d := json.NewDecoder(r.Body)
+			d.DisallowUnknownFields() // error if user sends extra data
+
+			deletePtw := struct {
+				Id     *string `json:"id"`
+				Origin *string `json:"origin"`
+			}{}
+
+			if err := d.Decode(&deletePtw); err != nil {
+				// bad JSON or unrecognized json field
+				log.Println("Error while decoding plan to watch from DELETE:", err)
+				return
+			}
+
+			// Check if theres more than what we want
+			if d.More() {
+				log.Println("Extraneous data after JSON object from DELETE in plan to watch")
+				return
+			}
+
+			if valid, err = db.DeletePlanToWatch(*deletePtw.Id, "ui"); err != nil {
+				log.Println("Error while deleting plan to watch (ui):", err)
+				return
+			}
+
+			if valid {
+				log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Id, *deletePtw.Origin)
+				http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
+				return
+
+			}
+
 		}
 	}
 }
+
+/*
+TODO:
+   - when I try to delete a record I need to F5 in order to update the view (/ptw?11=)
+     - meaning the redirect is not working
+*/

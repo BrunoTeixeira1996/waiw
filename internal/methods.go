@@ -295,27 +295,22 @@ func (c *Db) InsertPlanToWatch(q string, params ...any) error {
 	return nil
 }
 
-func (c *Db) DeletePlanToWatch(q string, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while inserting a new plan to watch: %w", c.Err)
-	}
-	return nil
-}
-
-func (c *Db) DeletePlanToWatchApi(name string) (bool, error) {
+func (c *Db) DeletePlanToWatch(name string, origin string) (bool, error) {
 	if err := c.Connect(); err != nil {
 		return false, err
 	}
 	defer c.Con.Close()
 
 	var recordId sql.NullInt64
-	if c.Err = c.Con.QueryRow("delete from plan_to_watch where name = $1 returning id", name).Scan(&recordId); c.Err != nil {
-		return false, c.Err
+	switch origin {
+	case "ui":
+		if c.Err = c.Con.QueryRow("delete from plan_to_watch where id = $1 returning id", name).Scan(&recordId); c.Err != nil {
+			return false, c.Err
+		}
+	case "api":
+		if c.Err = c.Con.QueryRow("delete from plan_to_watch where name = $1 returning id", name).Scan(&recordId); c.Err != nil {
+			return false, c.Err
+		}
 	}
 
 	return recordId.Valid, nil

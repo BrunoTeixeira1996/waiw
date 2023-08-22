@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 // Function that displayes status code and json response to GET an POST methods
@@ -80,7 +81,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			}
 
 			// Gets categoryid from name
-			if err := db.GetCategoryId(*ptwTemp.CategoryName, &category); err != nil {
+			if err := db.GetCategoryId(strings.Title(*ptwTemp.CategoryName), &category); err != nil {
 				log.Println("Error while extracting category name from POST In plan to watch")
 				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while extracting category name")
 				return
@@ -92,6 +93,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				return
 			}
 
+			log.Printf("Added new plan to watch %s from the api\n", *ptwTemp.Name)
 			writeJsonResponseToClient(w, http.StatusOK, "Added new plan to watch")
 
 			// Removing record from database
@@ -100,7 +102,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			d.DisallowUnknownFields() // error if user sends extra data
 
 			deletePtw := struct {
-				Name   *string `json:"name"`
+				Id     *string `json:"id"`
 				Origin *string `json:"origin"`
 			}{}
 
@@ -118,38 +120,18 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				return
 			}
 
-			// if its from the ui
-			if *deletePtw.Origin == "ui" {
-				if err := db.DeletePlanToWatch("delete from plan_to_watch where id = $1 returning id", *deletePtw.Name); err != nil {
-					log.Println("Error while deleting plan to watch (ui):", err)
-					return
-				}
-
-				log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
-				http.Redirect(w, r, r.Header.Get("Referer"), http.StatusSeeOther)
+			if valid, err = db.DeletePlanToWatch(*deletePtw.Id, "api"); err != nil {
+				log.Println("Error while deleting plan to watch (api):", err)
+				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
 				return
-
-				// if its from the api
-			} else {
-
-				if valid, err = db.DeletePlanToWatchApi(*deletePtw.Name); err != nil {
-					log.Println("Error while deleting plan to watch (api):", err)
-					writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
-					return
-				}
-
-				if valid {
-					log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Name, *deletePtw.Origin)
-					writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
-					return
-				}
 			}
+
+			if valid {
+				log.Printf("Deleted %s from plan to watch (%s)\n", *deletePtw.Id, *deletePtw.Origin)
+				writeJsonResponseToClient(w, http.StatusOK, "Deleted record from plan to watch")
+				return
+			}
+
 		}
 	}
 }
-
-/*
-TODO:
-   - when I try to delete a record I need to F5 in order to update the view (/ptw?11=)
-     - meaning the redirect is not working
-*/
