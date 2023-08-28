@@ -8,6 +8,26 @@ imdb_rating VARCHAR,
 launch_date INTEGER,
 view_date INTEGER NOT NULL);
 
+CREATE TABLE series (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title VARCHAR NOT NULL,
+image VARCHAR,
+sinopse VARCHAR,
+genre VARCHAR,
+imdb_rating VARCHAR,
+launch_date INTEGER,
+view_date INTEGER NOT NULL);
+
+CREATE TABLE animes (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title VARCHAR NOT NULL,
+image VARCHAR,
+sinopse VARCHAR,
+genre VARCHAR,
+imdb_rating VARCHAR,
+launch_date INTEGER,
+view_date INTEGER NOT NULL);
+
 
 CREATE TABLE ratings (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
