@@ -316,46 +316,49 @@ func (c *Db) DeletePlanToWatch(name string, origin string) (bool, error) {
 	return recordId.Valid, nil
 }
 
-// Check if any of movie field is empty
-func (m *Movie) HasEmptyAttr() (bool, string) {
-	if m.Title == "" {
+// Check if any of upload field is empty
+func (u *Upload) HasEmptyAttr() (bool, string) {
+	if u.Category == "" {
+		return true, "Category"
+	}
+	if u.Title == "" {
 		return true, "Title"
 	}
-	if m.Image == "" {
+	if u.Image == "" {
 		return true, "Image"
 	}
-	if m.Sinopse == "" {
+	if u.Sinopse == "" {
 		return true, "Sinopse"
 	}
-	if m.Genre == "" {
+	if u.Genre == "" {
 		return true, "Genre"
 	}
-	if m.Imdb_Rating == "" {
+	if u.Imdb_Rating == "" {
 		return true, "Imdb_Rating"
 	}
-	if m.Launch_Date == "" {
+	if u.Launch_Date == "" {
 		return true, "Launch_Date"
 	}
-	if m.View_Date == "" {
+	if u.View_Date == "" {
 		return true, "View_Date"
 	}
 
 	return false, ""
 }
 
-// Validates fields of movie for the Upload Handle
-func (m *Movie) ValidateFieldsInUpload() error {
-	genreHasNumber := regexp.MustCompile(`\d`).MatchString(m.Genre)
+// Validates fields for the Upload Handle
+func (u *Upload) ValidateFieldsInUpload() error {
+	genreHasNumber := regexp.MustCompile(`\d`).MatchString(u.Genre)
 	if genreHasNumber {
 		return fmt.Errorf("Genre must be a string, not a number")
 	}
-	if _, err := strconv.Atoi(m.Imdb_Rating); err != nil {
+	if _, err := strconv.Atoi(u.Imdb_Rating); err != nil {
 		return fmt.Errorf("Imdb Rating must be a number, not a string")
 	}
 
 	currentYear := time.Now().Year()
-	intLaunchDate, _ := strconv.Atoi(m.Launch_Date)
-	intViewDate, _ := strconv.Atoi(m.View_Date)
+	intLaunchDate, _ := strconv.Atoi(u.Launch_Date)
+	intViewDate, _ := strconv.Atoi(u.View_Date)
 
 	if intLaunchDate > currentYear {
 		return fmt.Errorf("Not a valid launch date year")

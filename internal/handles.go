@@ -201,17 +201,18 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 			baseTemplate.Execute(w, page)
 
 		case http.MethodPost:
-			movie := Movie{
+			upload := Upload{
 				Title:       r.FormValue("title"),
 				Sinopse:     r.FormValue("area_1"),
 				Genre:       r.FormValue("genre"),
 				Imdb_Rating: r.FormValue("imdb"),
 				Launch_Date: r.FormValue("ldate"),
 				View_Date:   r.FormValue("vdate"),
+				Category:    r.Form["categories"][0],
 			}
 
 			// validate all fields from movie
-			if err := movie.ValidateFieldsInUpload(); err != nil {
+			if err := upload.ValidateFieldsInUpload(); err != nil {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'>  %s </p>", err)
 				page := Page{
 					Title: "Upload",
@@ -294,9 +295,9 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				return im[len(im)-1]
 			}
 
-			movie.Image = im()
+			upload.Image = im()
 
-			if hasEmpty, emptyAttr := movie.HasEmptyAttr(); hasEmpty {
+			if hasEmpty, emptyAttr := upload.HasEmptyAttr(); hasEmpty {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
 				page := Page{
 					Title: "Upload",
@@ -307,16 +308,24 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				return
 			}
 
-			if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", movie.Title, movie.Image, movie.Sinopse, movie.Genre, movie.Imdb_Rating, movie.Launch_Date, movie.View_Date); err != nil {
-				log.Println("Error while inserting new movie:", err)
-				return
+			switch upload.Category {
+			case "Movie":
+				if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
+					log.Println("Error while inserting new movie:", err)
+					return
+				}
+				log.Println("Added movie:", upload.Title)
+
+			case "Serie":
+				log.Println("Not implemented yet")
+			case "Anime":
+				log.Println("Not implemented yet")
 			}
 
 			page := Page{
 				Title: "Upload",
 			}
 			baseTemplate.Execute(w, page)
-			log.Println("Added movie:", movie.Title)
 		}
 	}
 }

@@ -4,9 +4,18 @@
 <div class ="container">
   <form enctype="multipart/form-data" method="POST" id="upload">
     <div class="col-lg-6">
+      <label for="category"><h4>Choose a Category</h4></label>
+      <br>
+      <select name="categories" id="categories" required>
+	<option selected disabled hidden></option>
+	<option value="Movie" >Movie</option>
+	<option value="Serie" >Serie</option>
+	<option value="Anime" >Anime</option>
+      </select>
+      <br>
+
       <label for="title"><h4>Title</h4></label><br>
-      <input type="text" id="title" name="title" value="" required><br>
-      
+      <input type="text" id="title" name="title" value="" required><br>      
       <label for="exampleFormControlTextarea1"><h4>Sinopse<h4></label>
       <textarea class="form-control" id="exampleFormControlTextarea1" name="area_1" rows="3" value="area_1" required></textarea>
       <label for="genre"><h4>Genre</h4></label><br>
@@ -25,7 +34,7 @@
 
   <div class="form-group">
     <button class="btn btn-outline-info" type="submit" form="upload" name="Submit">Upload</button>
-</div>
+  </div>
   </div>
 </div>
 

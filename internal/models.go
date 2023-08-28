@@ -23,6 +23,17 @@ type Page struct {
 	Error  any
 }
 
+type Upload struct {
+	Title       string
+	Sinopse     string
+	Genre       string
+	Imdb_Rating string
+	Launch_Date string
+	View_Date   string
+	Image       string
+	Category    string
+}
+
 // Struct that represents a movie
 type Movie struct {
 	Id          int
