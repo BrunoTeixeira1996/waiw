@@ -1,28 +1,28 @@
 CREATE TABLE movies (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
-image VARCHAR,
-sinopse VARCHAR,
-genre VARCHAR,
-imdb_rating VARCHAR,
-launch_date INTEGER,
+image VARCHAR NOT NULL,
+sinopse VARCHAR NOT NULL,
+genre VARCHAR NOT NULL,
+imdb_rating VARCHAR NOT NULL,
+launch_date INTEGER NOT NULL,
 view_date INTEGER NOT NULL);
 
 CREATE TABLE series (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
-image VARCHAR,
-genre VARCHAR,
-imdb_rating VARCHAR,
-launch_date INTEGER);
+image VARCHAR NOT NULL,
+genre VARCHAR NOT NULL,
+imdb_rating VARCHAR NOT NULL,
+launch_date INTEGER NOT NULL);
 
 CREATE TABLE animes (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
-image VARCHAR,
-genre VARCHAR,
-imdb_rating VARCHAR,
-launch_date INTEGER);
+image VARCHAR NOT NULL,
+genre VARCHAR NOT NULL,
+imdb_rating VARCHAR NOT NULL,
+launch_date INTEGER NOT NULL);
 
 
 CREATE TABLE ratings (
