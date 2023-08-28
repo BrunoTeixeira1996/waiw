@@ -12,21 +12,17 @@ CREATE TABLE series (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
 image VARCHAR,
-sinopse VARCHAR,
 genre VARCHAR,
 imdb_rating VARCHAR,
-launch_date INTEGER,
-view_date INTEGER NOT NULL);
+launch_date INTEGER);
 
 CREATE TABLE animes (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title VARCHAR NOT NULL,
 image VARCHAR,
-sinopse VARCHAR,
 genre VARCHAR,
 imdb_rating VARCHAR,
-launch_date INTEGER,
-view_date INTEGER NOT NULL);
+launch_date INTEGER);
 
 
 CREATE TABLE ratings (

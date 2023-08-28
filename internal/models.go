@@ -34,6 +34,16 @@ type Upload struct {
 	Category    string
 }
 
+// Struct that represents a serie
+type Serie struct {
+	Id          int
+	Title       string
+	Image       string
+	Genre       string
+	Imdb_Rating string
+	Launch_Date string
+}
+
 // Struct that represents a movie
 type Movie struct {
 	Id          int

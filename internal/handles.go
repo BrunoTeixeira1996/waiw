@@ -211,8 +211,8 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				Category:    r.Form["categories"][0],
 			}
 
-			// validate all fields from movie
-			if err := upload.ValidateFieldsInUpload(); err != nil {
+			// validate all fields
+			if err := upload.ValidateFieldsInUpload(upload.Category); err != nil {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'>  %s </p>", err)
 				page := Page{
 					Title: "Upload",
@@ -225,7 +225,8 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 			// if everything works fine, download the image otherwise we would have dead images even when we failed uploading a movie
 			// Get image name and save in /assets/image/ folder
-			im := func() string {
+			// it returns the path of the image saved and the image link provided in the upload endpoint
+			im := func() (string, string) {
 				var (
 					imageLink string
 					imageFile multipart.File
@@ -243,26 +244,26 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 					imageFile, handler, err = r.FormFile("myFile")
 					if err != nil {
 						log.Println("Error retrieved the image file:", err)
-						return ""
+						return "", ""
 					}
 					defer imageFile.Close()
 
 					if _, ok := allowedImageTypes[handler.Header.Get("Content-Type")]; !ok {
 						log.Println("Error, file type not allowed when uploading image")
-						return ""
+						return "", ""
 					}
 				}
 
 				path, err := os.Getwd()
 				if err != nil {
 					log.Println("Error while getting the current path:", err)
-					return ""
+					return "", ""
 				}
 
 				newImage, err := os.CreateTemp(path+"/assets/images", "upload-*.png")
 				if err != nil {
 					log.Println("Error while creating the new image:", err)
-					return ""
+					return "", ""
 				}
 				defer newImage.Close()
 
@@ -273,6 +274,7 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 					res, err := http.Get(imageLink)
 					if err != nil {
 						log.Println("Error while querying the image:", imageLink)
+						return "", ""
 					}
 
 					defer res.Body.Close()
@@ -285,39 +287,50 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				imageBytes, err := io.ReadAll(image)
 				if err != nil {
 					log.Println("Error while reading the contents of the uploaded image:", err)
-					return ""
+					return "", ""
 				}
 				if _, err := newImage.Write(imageBytes); err != nil {
 					log.Println("Error while writting the new image:", err)
-					return ""
+					return "", ""
 				}
 				im := strings.Split(newImage.Name(), "/")
-				return im[len(im)-1]
+				return im[len(im)-1], imageLink
 			}
 
-			upload.Image = im()
+			// If its a movie we output the image path in order to get the movie comments
+			// otherwise we just output the image link since we don't rage series nor animes
+			if upload.Category == "Movie" {
+				upload.Image, _ = im()
+			} else {
+				_, upload.Image = im()
+			}
 
-			if hasEmpty, emptyAttr := upload.HasEmptyAttr(); hasEmpty {
+			if hasEmpty, emptyAttr := upload.HasEmptyAttr(upload.Category); hasEmpty {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
 				page := Page{
 					Title: "Upload",
 					Error: template.HTML(alertDanger),
 				}
 				baseTemplate.Execute(w, page)
-				log.Println("There are empty attributes when uploading a movie:", emptyAttr)
+				log.Println("There are empty attributes when uploading:", emptyAttr)
 				return
 			}
 
 			switch upload.Category {
 			case "Movie":
-				if err := db.InsertMovieComments("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
+				if err := db.InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
 					log.Println("Error while inserting new movie:", err)
 					return
 				}
 				log.Println("Added movie:", upload.Title)
 
 			case "Serie":
-				log.Println("Not implemented yet")
+				if err := db.InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
+					log.Println("Error while inserting new serie:", err)
+					return
+				}
+				log.Println("Added serie:", upload.Title)
+
 			case "Anime":
 				log.Println("Not implemented yet")
 			}
@@ -331,11 +344,18 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 }
 
 // Handles "/series"
-func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
+func SeriesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+	var series []Serie
 	return func(w http.ResponseWriter, r *http.Request) {
+		if err := db.QueryAllFromSeries("select * from series", &series); err != nil {
+			log.Println("Error while handling QueryAllFromSeries:", err)
+		}
+
 		page := Page{
 			Title: "Series",
+			Any:   series,
 		}
+		series = nil
 		page.LoadActiveEndpoint("Series")
 		baseTemplate.Execute(w, page)
 	}

@@ -191,8 +191,8 @@ func (c *Db) InsertMovieComments(q string, params ...any) error {
 	return nil
 }
 
-// Insert new movie
-func (c *Db) InsertNewMovie(q string, params ...any) error {
+// Insert new entry (movie,serie or anime)
+func (c *Db) InsertNewEntry(q string, params ...any) error {
 	if err := c.Connect(); err != nil {
 		return err
 	}
@@ -316,38 +316,90 @@ func (c *Db) DeletePlanToWatch(name string, origin string) (bool, error) {
 	return recordId.Valid, nil
 }
 
+// Query all info from series
+func (c *Db) QueryAllFromSeries(q string, series *[]Serie, params ...any) error {
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer c.Con.Close()
+
+	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
+		return fmt.Errorf("Error while doing query: %w", c.Err)
+	}
+
+	defer c.Rows.Close()
+
+	for c.Rows.Next() {
+		var s Serie
+		if c.Err = c.Rows.Scan(
+			&s.Id,
+			&s.Title,
+			&s.Image,
+			&s.Genre,
+			&s.Imdb_Rating,
+			&s.Launch_Date,
+		); c.Err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		}
+
+		*series = append(*series, s)
+	}
+
+	return nil
+}
+
 // Check if any of upload field is empty
-func (u *Upload) HasEmptyAttr() (bool, string) {
+func (u *Upload) HasEmptyAttr(category string) (bool, string) {
 	if u.Category == "" {
 		return true, "Category"
 	}
-	if u.Title == "" {
-		return true, "Title"
-	}
-	if u.Image == "" {
-		return true, "Image"
-	}
-	if u.Sinopse == "" {
-		return true, "Sinopse"
-	}
-	if u.Genre == "" {
-		return true, "Genre"
-	}
-	if u.Imdb_Rating == "" {
-		return true, "Imdb_Rating"
-	}
-	if u.Launch_Date == "" {
-		return true, "Launch_Date"
-	}
-	if u.View_Date == "" {
-		return true, "View_Date"
-	}
 
+	switch category {
+	case "Movie":
+		if u.Title == "" {
+			return true, "Title"
+		}
+		if u.Image == "" {
+			return true, "Image"
+		}
+		if u.Sinopse == "" {
+			return true, "Sinopse"
+		}
+		if u.Genre == "" {
+			return true, "Genre"
+		}
+		if u.Imdb_Rating == "" {
+			return true, "Imdb_Rating"
+		}
+		if u.Launch_Date == "" {
+			return true, "Launch_Date"
+		}
+		if u.View_Date == "" {
+			return true, "View_Date"
+		}
+
+	default:
+		if u.Title == "" {
+			return true, "Title"
+		}
+		if u.Image == "" {
+			return true, "Image"
+		}
+		if u.Genre == "" {
+			return true, "Genre"
+		}
+		if u.Imdb_Rating == "" {
+			return true, "Imdb_Rating"
+		}
+		if u.Launch_Date == "" {
+			return true, "Launch_Date"
+		}
+	}
 	return false, ""
 }
 
 // Validates fields for the Upload Handle
-func (u *Upload) ValidateFieldsInUpload() error {
+func (u *Upload) ValidateFieldsInUpload(category string) error {
 	genreHasNumber := regexp.MustCompile(`\d`).MatchString(u.Genre)
 	if genreHasNumber {
 		return fmt.Errorf("Genre must be a string, not a number")
@@ -358,13 +410,15 @@ func (u *Upload) ValidateFieldsInUpload() error {
 
 	currentYear := time.Now().Year()
 	intLaunchDate, _ := strconv.Atoi(u.Launch_Date)
-	intViewDate, _ := strconv.Atoi(u.View_Date)
-
 	if intLaunchDate > currentYear {
 		return fmt.Errorf("Not a valid launch date year")
 	}
-	if intViewDate > currentYear || intViewDate < intLaunchDate {
-		return fmt.Errorf("Not a valid view date year")
+
+	if category == "Movie" {
+		intViewDate, _ := strconv.Atoi(u.View_Date)
+		if intViewDate > currentYear || intViewDate < intLaunchDate {
+			return fmt.Errorf("Not a valid view date year")
+		}
 	}
 	return nil
 }
