@@ -12,7 +12,9 @@ import (
 
 	cp "github.com/otiai10/copy"
 
-	"github.com/BrunoTeixeira1996/waiw/internal"
+	"github.com/BrunoTeixeira1996/waiw/internal/api"
+	"github.com/BrunoTeixeira1996/waiw/internal/handles"
+	"github.com/BrunoTeixeira1996/waiw/internal/metandmod"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -49,7 +51,7 @@ func requestLogger(targetMux http.Handler) http.Handler {
 // Starts the web server
 func startServer(currentPath string, dbPath string, debugFlag bool, dbType string) error {
 	// initializes db
-	if err := internal.InitDb(dbType, dbPath); err != nil {
+	if err := metandmod.InitDb(dbType, dbPath); err != nil {
 		return err
 	}
 
@@ -70,15 +72,15 @@ func startServer(currentPath string, dbPath string, debugFlag bool, dbType strin
 	fs := http.FileServer(http.Dir("assets"))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	mux.HandleFunc("/", internal.IndexHandle(baseTemplate))
-	mux.HandleFunc("/upload", internal.UploadHandle(uploadTemplate))
+	mux.HandleFunc("/", handles.IndexHandle(baseTemplate))
+	mux.HandleFunc("/upload", handles.UploadHandle(uploadTemplate))
 
-	mux.HandleFunc("/movies", internal.MoviesHandle(moviesTemplate))
-	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate))
-	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate))
-	mux.HandleFunc("/ptw", internal.PtwHandle(ptwTemplate))
+	mux.HandleFunc("/movies", handles.MoviesHandle(moviesTemplate))
+	mux.HandleFunc("/movie", handles.MoviesHandle(movieTemplate))
+	mux.HandleFunc("/series", handles.SeriesHandle(seriesTemplate))
+	mux.HandleFunc("/ptw", handles.PtwHandle(ptwTemplate))
 
-	//mux.HandleFunc("/api/ptw", internal.PtwApiHandle(db))
+	mux.HandleFunc("/api/ptw", api.PtwApiHandle())
 
 	// HTTP Server
 	go func() {

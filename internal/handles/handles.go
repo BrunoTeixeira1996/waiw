@@ -1,4 +1,4 @@
-package internal
+package handles
 
 import (
 	"encoding/json"
@@ -12,12 +12,14 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/BrunoTeixeira1996/waiw/internal/metandmod"
 )
 
 // Handles "/"
 func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page := Page{
+		page := metandmod.Page{
 			Title: "Home",
 		}
 		page.LoadActiveEndpoint("Home")
@@ -29,9 +31,9 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 // Handles "/movies"
 func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	var (
-		movies       []Movie
-		movieRating  []MovieRating
-		users        []User
+		movies       []metandmod.Movie
+		movieRating  []metandmod.MovieRating
+		users        []metandmod.User
 		title        string
 		alertDanger  string
 		emptyInputs  bool
@@ -63,27 +65,27 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 			// List respective movie based on movieId
 			if movieId != "" {
-				if err := QueryMovie(movieId, &title, &movies, movieRating); err != nil {
+				if err := metandmod.QueryMovie(movieId, &title, &movies, movieRating); err != nil {
 					log.Println("Error while querying a movie:", err)
 					return
 				}
 				log.Println("Opened movie:", title)
 
 				// Get users in database
-				if err := GetAvailableUsers(&users); err != nil {
+				if err := metandmod.GetAvailableUsers(&users); err != nil {
 					log.Println("Error while querying users:", err)
 					return
 				}
 
 			} else {
 				// List all movies
-				if err := QueryAllFromMovie("select * from movies", &movies); err != nil {
+				if err := metandmod.QueryAllFromMovie("select * from movies", &movies); err != nil {
 					log.Println("Error while handling QueryAllFromMovies:", err)
 				}
 				title = "Movies"
 			}
 
-			page := Page{
+			page := metandmod.Page{
 				Title: title,
 				Any:   movies,
 				Users: users,
@@ -135,17 +137,17 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 				return
 			}
 
-			var user User
+			var user metandmod.User
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
-				if err := SetUser("select * from users where username = $1", author, &user); err != nil {
+				if err := metandmod.SetUser("select * from users where username = $1", author, &user); err != nil {
 					log.Println("Error while seting user:", err)
 					return
 				}
 
 				// Verify if this user already commented
 				userHasCommented := func() bool {
-					yes, err := UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = $1 and users.id = $2", movieId, user.Id)
+					yes, err := metandmod.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = $1 and users.id = $2", movieId, user.Id)
 					if err != nil {
 						log.Println("Error while checking if user already commented on movie:", err)
 						return false
@@ -167,7 +169,7 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 				}
 
 				// Insert in database the comments and ratings
-				if err := InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
+				if err := metandmod.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
 					log.Println("Error while inserting movie comment:", err)
 					return
 				}
@@ -192,7 +194,7 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			page := Page{
+			page := metandmod.Page{
 				Title: "Upload",
 			}
 
@@ -201,7 +203,7 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 			baseTemplate.Execute(w, page)
 
 		case http.MethodPost:
-			upload := Upload{
+			upload := metandmod.Upload{
 				Title:       r.FormValue("title"),
 				Sinopse:     r.FormValue("area_1"),
 				Genre:       r.FormValue("genre"),
@@ -214,7 +216,7 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 			// validate all fields
 			if err := upload.ValidateFieldsInUpload(upload.Category); err != nil {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'>  %s </p>", err)
-				page := Page{
+				page := metandmod.Page{
 					Title: "Upload",
 					Error: template.HTML(alertDanger),
 				}
@@ -307,7 +309,7 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 			if hasEmpty, emptyAttr := upload.HasEmptyAttr(upload.Category); hasEmpty {
 				alertDanger := fmt.Sprintf("<p class='alert alert-danger'> Missing: %s </p>", emptyAttr)
-				page := Page{
+				page := metandmod.Page{
 					Title: "Upload",
 					Error: template.HTML(alertDanger),
 				}
@@ -318,14 +320,14 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 			switch upload.Category {
 			case "Movie":
-				if err := InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
+				if err := metandmod.InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
 					log.Println("Error while inserting new movie:", err)
 					return
 				}
 				log.Println("Added movie:", upload.Title)
 
 			case "Serie":
-				if err := InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
+				if err := metandmod.InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
 					log.Println("Error while inserting new serie:", err)
 					return
 				}
@@ -335,7 +337,7 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 				log.Println("Not implemented yet")
 			}
 
-			page := Page{
+			page := metandmod.Page{
 				Title: "Upload",
 			}
 			baseTemplate.Execute(w, page)
@@ -345,13 +347,13 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 // Handles "/series"
 func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
-	var series []Serie
+	var series []metandmod.Serie
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := QueryAllFromSeries("select * from series", &series); err != nil {
+		if err := metandmod.QueryAllFromSeries("select * from series", &series); err != nil {
 			log.Println("Error while handling QueryAllFromSeries:", err)
 		}
 
-		page := Page{
+		page := metandmod.Page{
 			Title: "Series",
 			Any:   series,
 		}
@@ -377,7 +379,7 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 		switch r.Method {
 		case http.MethodGet:
 			// Get list of plan to watch from database
-			var sptw []Ptw
+			var sptw []metandmod.Ptw
 
 			// Checks if theres a cookie about an error so we can display that in the html
 			c, _ := r.Cookie("error_cookie")
@@ -389,15 +391,15 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 				emptyInputs = false
 			}
 
-			if err := GetPlanToWatch(&sptw); err != nil {
+			if err := metandmod.GetPlanToWatch(&sptw); err != nil {
 				log.Println("Error while querying ptw:", err)
 				return
 			}
 
 			ptwTemp := struct {
-				Movies []Ptw
-				Series []Ptw
-				Animes []Ptw
+				Movies []metandmod.Ptw
+				Series []metandmod.Ptw
+				Animes []metandmod.Ptw
 			}{}
 
 			for _, v := range sptw {
@@ -411,7 +413,7 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 				}
 			}
 
-			page := Page{
+			page := metandmod.Page{
 				Title: "Plan to Watch",
 				Any:   ptwTemp,
 				Error: template.HTML(alertDanger),
@@ -449,7 +451,7 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 				return
 			}
 
-			if err := InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
+			if err := metandmod.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
 				log.Println("Error while inserting new plan to watch:", err)
 				return
 			}
@@ -478,7 +480,7 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 				return
 			}
 
-			if valid, err = DeletePlanToWatch(*deletePtw.Id, "ui"); err != nil {
+			if valid, err = metandmod.DeletePlanToWatch(*deletePtw.Id, "ui"); err != nil {
 				log.Println("Error while deleting plan to watch (ui):", err)
 				return
 			}

@@ -1,4 +1,4 @@
-package internal
+package metandmod
 
 import (
 	"database/sql"
