@@ -25,7 +25,7 @@ jobs:
       run: gok new
 
     - name: add this program to the gokrazy instance
-      run: gok add .
+      run: gok add ./cmd/waiw
 
     - name: generate gokrazy disk image
       run: gok overwrite --root root.squashfs
