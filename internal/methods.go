@@ -39,32 +39,34 @@ func (p *Page) LoadActiveEndpoint(endpoint string) error {
 	return nil
 }
 
-// Connect to database
-func (c *Db) Connect() error {
-	c.Con, c.Err = sql.Open(c.Type, c.Location)
-	if c.Err != nil {
-		return fmt.Errorf("Error while connecting to database: %w", c.Err)
+// Connect to database once
+func InitDb(dbType string, location string) error {
+	d, err := sql.Open(dbType, location)
+	if err != nil {
+		return fmt.Errorf("Error while connecting to database: %w", err)
 	}
+
+	dbCon = d
 
 	return nil
 }
 
-// Query all info from movies
-func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
+// Query all info from movie
+func QueryAllFromMovie(q string, movies *[]Movie, params ...any) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if rows, err = dbCon.Query(q, params...); err != nil {
+		return fmt.Errorf("Error while doing query: %w", err)
 	}
-	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while doing query: %w", c.Err)
-	}
+	defer rows.Close()
 
-	defer c.Rows.Close()
-
-	for c.Rows.Next() {
+	for rows.Next() {
 		var m Movie
-		if c.Err = c.Rows.Scan(
+		if err = rows.Scan(
 			&m.Id,
 			&m.Title,
 			&m.Image,
@@ -73,8 +75,8 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 			&m.Imdb_Rating,
 			&m.Launch_Date,
 			&m.View_Date,
-		); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 
 		*movies = append(*movies, m)
@@ -84,14 +86,14 @@ func (c *Db) QueryAllFromMovies(q string, movies *[]Movie, params ...any) error 
 }
 
 // Query a movie
-func (c *Db) QueryMovie(movieId string, title *string, movies *[]Movie, movieRating []MovieRating) error {
+func QueryMovie(movieId string, title *string, movies *[]Movie, movieRating []MovieRating) error {
 	if regexp.MustCompile(`\d`).MatchString(movieId) {
-		if err := c.QueryAllFromMovies("select * from movies where id = $1", movies, movieId); err != nil {
+		if err := QueryAllFromMovie("select * from movies where id = $1", movies, movieId); err != nil {
 			return fmt.Errorf("Error while QueryAllFromMovies for movie id=%s\n", movieId)
 		}
 
 		// Gathers comments and ratings about specific movie
-		if err := c.QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = $1", &movieRating, movieId); err != nil {
+		if err := QueryCommentsAndRatings("select users.username, ratings.value, movie_ratings.comments from ratings, movie_ratings, movies, users where ratings.id = movie_ratings.rating_id and movies.id = movie_ratings.movie_id and users.id = movie_ratings.user_id and movie_id = $1", &movieRating, movieId); err != nil {
 			return fmt.Errorf("Error while QueryCommentsAndRatings for movie id=%s\n", movieId)
 		}
 	}
@@ -102,30 +104,29 @@ func (c *Db) QueryMovie(movieId string, title *string, movies *[]Movie, movieRat
 	*title = (*movies)[0].Title
 
 	return nil
-
 }
 
 // Query all info about rating and comments
-func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
+func QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, params ...any) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if rows, err = dbCon.Query(q, params...); err != nil {
+		return fmt.Errorf("Error while doing query: %w", err)
 	}
-	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while doing query: %w", c.Err)
-	}
+	defer rows.Close()
 
-	defer c.Rows.Close()
-
-	for c.Rows.Next() {
+	for rows.Next() {
 		var r MovieRating
-		if c.Err = c.Rows.Scan(
+		if err = rows.Scan(
 			&r.UserName,
 			&r.Rating,
 			&r.Comments,
-		); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 
 		*movieRatings = append(*movieRatings, r)
@@ -135,20 +136,20 @@ func (c *Db) QueryCommentsAndRatings(q string, movieRatings *[]MovieRating, para
 }
 
 // Get available users
-func (c *Db) GetAvailableUsers(users *[]User) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
+func GetAvailableUsers(users *[]User) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
 
-	if c.Rows, c.Err = c.Con.Query("select * from users"); c.Err != nil {
-		return fmt.Errorf("Error while getting available users from database: %w", c.Err)
+	if rows, err = dbCon.Query("select * from users"); err != nil {
+		return fmt.Errorf("Error while getting available users from database: %w", err)
 	}
 
-	for c.Rows.Next() {
+	for rows.Next() {
 		var user User
-		if c.Err = c.Rows.Scan(&user.Id, &user.Username); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		if err = rows.Scan(&user.Id, &user.Username); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 
 		*users = append(*users, user)
@@ -158,20 +159,20 @@ func (c *Db) GetAvailableUsers(users *[]User) error {
 }
 
 // Set user values
-func (c *Db) SetUser(q string, username string, user *User) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
+func SetUser(q string, username string, user *User) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
 
-	if c.Rows, c.Err = c.Con.Query(q, username); c.Err != nil {
-		return fmt.Errorf("Error while querying for user: %w", c.Err)
+	if rows, err = dbCon.Query(q, username); err != nil {
+		return fmt.Errorf("Error while querying for user: %w", err)
 	}
 
-	defer c.Rows.Close()
-	for c.Rows.Next() {
-		if c.Err = c.Rows.Scan(&user.Id, &user.Username); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+	defer rows.Close()
+	for rows.Next() {
+		if err = rows.Scan(&user.Id, &user.Username); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 	}
 
@@ -179,45 +180,35 @@ func (c *Db) SetUser(q string, username string, user *User) error {
 }
 
 // Insert comments into a movie
-func (c *Db) InsertMovieComments(q string, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while inserting comment in movie: %w", c.Err)
+func InsertMovieComments(q string, params ...any) error {
+	if _, err := dbCon.Exec(q, params...); err != nil {
+		return fmt.Errorf("Error while inserting comment in movie: %w", err)
 	}
 	return nil
 }
 
 // Insert new entry (movie,serie or anime)
-func (c *Db) InsertNewEntry(q string, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while inserting a new movie: %w", c.Err)
+func InsertNewEntry(q string, params ...any) error {
+	if _, err := dbCon.Exec(q, params...); err != nil {
+		return fmt.Errorf("Error while inserting a new movie: %w", err)
 	}
 	return nil
 }
 
 // Check if user already commented
-func (c *Db) UserAlreadyCommented(q string, params ...any) (bool, error) {
-	if err := c.Connect(); err != nil {
-		return false, err
+func UserAlreadyCommented(q string, params ...any) (bool, error) {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if rows, err = dbCon.Query(q, params...); err != nil {
+		return false, fmt.Errorf("Error while doing query: %w", err)
 	}
-	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
-		return false, fmt.Errorf("Error while doing query: %w", c.Err)
-	}
+	defer rows.Close()
 
-	defer c.Rows.Close()
-
-	for c.Rows.Next() {
+	for rows.Next() {
 		return true, nil
 	}
 
@@ -225,53 +216,42 @@ func (c *Db) UserAlreadyCommented(q string, params ...any) (bool, error) {
 }
 
 // Gets CategoryName from Id
-func (c *Db) GetCategoryName(categoryId int, category *Category) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Err = c.Con.QueryRow("select * from category where id = $1", categoryId).Scan(&category.Id, &category.Name); c.Err != nil {
-		return fmt.Errorf("Error while querying the catory with id %d: %w", categoryId, c.Err)
+func GetCategoryName(categoryId int, category *Category) error {
+	if err := dbCon.QueryRow("select * from category where id = $1", categoryId).Scan(&category.Id, &category.Name); err != nil {
+		return fmt.Errorf("Error while querying the catory with id %d: %w", categoryId, err)
 	}
 
 	return nil
 }
 
 // Gets CategoryId from name
-func (c *Db) GetCategoryId(categoryName string, category *Category) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Err = c.Con.QueryRow("select * from category where name = $1", categoryName).Scan(&category.Id, &category.Name); c.Err != nil {
-		return fmt.Errorf("Error while querying the catory with name %s: %w", categoryName, c.Err)
+func GetCategoryId(categoryName string, category *Category) error {
+	if err := dbCon.QueryRow("select * from category where name = $1", categoryName).Scan(&category.Id, &category.Name); err != nil {
+		return fmt.Errorf("Error while querying the catory with name %s: %w", categoryName, err)
 	}
 
 	return nil
 }
 
-// Gets  plan to watch entries
-func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
+func GetPlanToWatch(sptw *[]Ptw) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
 
-	if c.Rows, c.Err = c.Con.Query("select * from plan_to_watch order by category_id"); c.Err == sql.ErrNoRows {
-		return fmt.Errorf("Error while getting plan to watch entries: %w", c.Err)
+	if rows, err = dbCon.Query("select * from plan_to_watch order by category_id"); err == sql.ErrNoRows {
+		return fmt.Errorf("Error while getting plan to watch entries: %w", err)
 	}
 
-	for c.Rows.Next() {
+	for rows.Next() {
 		var ptw Ptw
 		var category Category
 
-		if c.Err = c.Rows.Scan(&ptw.Id, &ptw.Name, &ptw.Category.Id); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		if err = rows.Scan(&ptw.Id, &ptw.Name, &ptw.Category.Id); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 
-		if err := c.GetCategoryName(ptw.Category.Id, &category); err != nil {
+		if err := GetCategoryName(ptw.Category.Id, &category); err != nil {
 			return err
 		}
 
@@ -283,33 +263,23 @@ func (c *Db) GetPlanToWatch(sptw *[]Ptw) error {
 	return nil
 }
 
-func (c *Db) InsertPlanToWatch(q string, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
-	}
-	defer c.Con.Close()
-
-	if c.Result, c.Err = c.Con.Exec(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while inserting a new plan to watch: %w", c.Err)
+func InsertPlanToWatch(q string, params ...any) error {
+	if _, err := dbCon.Exec(q, params...); err != nil {
+		return fmt.Errorf("Error while inserting a new plan to watch: %w", err)
 	}
 	return nil
 }
 
-func (c *Db) DeletePlanToWatch(name string, origin string) (bool, error) {
-	if err := c.Connect(); err != nil {
-		return false, err
-	}
-	defer c.Con.Close()
-
+func DeletePlanToWatch(name string, origin string) (bool, error) {
 	var recordId sql.NullInt64
 	switch origin {
 	case "ui":
-		if c.Err = c.Con.QueryRow("delete from plan_to_watch where id = $1 returning id", name).Scan(&recordId); c.Err != nil {
-			return false, c.Err
+		if err := dbCon.QueryRow("delete from plan_to_watch where id = $1 returning id", name).Scan(&recordId); err != nil {
+			return false, err
 		}
 	case "api":
-		if c.Err = c.Con.QueryRow("delete from plan_to_watch where name = $1 returning id", name).Scan(&recordId); c.Err != nil {
-			return false, c.Err
+		if err := dbCon.QueryRow("delete from plan_to_watch where name = $1 returning id", name).Scan(&recordId); err != nil {
+			return false, err
 		}
 	}
 
@@ -317,29 +287,29 @@ func (c *Db) DeletePlanToWatch(name string, origin string) (bool, error) {
 }
 
 // Query all info from series
-func (c *Db) QueryAllFromSeries(q string, series *[]Serie, params ...any) error {
-	if err := c.Connect(); err != nil {
-		return err
+func QueryAllFromSeries(q string, series *[]Serie, params ...any) error {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if rows, err = dbCon.Query(q, params...); err != nil {
+		return fmt.Errorf("Error while doing query: %w", err)
 	}
-	defer c.Con.Close()
 
-	if c.Rows, c.Err = c.Con.Query(q, params...); c.Err != nil {
-		return fmt.Errorf("Error while doing query: %w", c.Err)
-	}
+	defer rows.Close()
 
-	defer c.Rows.Close()
-
-	for c.Rows.Next() {
+	for rows.Next() {
 		var s Serie
-		if c.Err = c.Rows.Scan(
+		if err = rows.Scan(
 			&s.Id,
 			&s.Title,
 			&s.Image,
 			&s.Genre,
 			&s.Imdb_Rating,
 			&s.Launch_Date,
-		); c.Err == sql.ErrNoRows {
-			return fmt.Errorf("Error while scanning rows: %w", c.Err)
+		); err == sql.ErrNoRows {
+			return fmt.Errorf("Error while scanning rows: %w", err)
 		}
 
 		*series = append(*series, s)

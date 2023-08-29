@@ -27,7 +27,7 @@ func IndexHandle(baseTemplate *template.Template) http.HandlerFunc {
 }
 
 // Handles "/movies"
-func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	var (
 		movies       []Movie
 		movieRating  []MovieRating
@@ -63,21 +63,21 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 			// List respective movie based on movieId
 			if movieId != "" {
-				if err := db.QueryMovie(movieId, &title, &movies, movieRating); err != nil {
+				if err := QueryMovie(movieId, &title, &movies, movieRating); err != nil {
 					log.Println("Error while querying a movie:", err)
 					return
 				}
 				log.Println("Opened movie:", title)
 
 				// Get users in database
-				if err := db.GetAvailableUsers(&users); err != nil {
+				if err := GetAvailableUsers(&users); err != nil {
 					log.Println("Error while querying users:", err)
 					return
 				}
 
 			} else {
 				// List all movies
-				if err := db.QueryAllFromMovies("select * from movies", &movies); err != nil {
+				if err := QueryAllFromMovie("select * from movies", &movies); err != nil {
 					log.Println("Error while handling QueryAllFromMovies:", err)
 				}
 				title = "Movies"
@@ -138,14 +138,14 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 			var user User
 
 			if regexp.MustCompile(`\d`).MatchString(movieId) {
-				if err := db.SetUser("select * from users where username = $1", author, &user); err != nil {
+				if err := SetUser("select * from users where username = $1", author, &user); err != nil {
 					log.Println("Error while seting user:", err)
 					return
 				}
 
 				// Verify if this user already commented
 				userHasCommented := func() bool {
-					yes, err := db.UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = $1 and users.id = $2", movieId, user.Id)
+					yes, err := UserAlreadyCommented("select movie_ratings.id from movie_ratings, movies, users where movie_ratings.movie_id = movies.id and movie_ratings.user_id = users.id and movies.id = $1 and users.id = $2", movieId, user.Id)
 					if err != nil {
 						log.Println("Error while checking if user already commented on movie:", err)
 						return false
@@ -167,7 +167,7 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				}
 
 				// Insert in database the comments and ratings
-				if err := db.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
+				if err := InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
 					log.Println("Error while inserting movie comment:", err)
 					return
 				}
@@ -182,7 +182,7 @@ func MoviesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 }
 
 // Handles "/upload"
-func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 	var allowedImageTypes = map[string]int{
 		"image/png":  1,
 		"image/jpeg": 2,
@@ -318,14 +318,14 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 
 			switch upload.Category {
 			case "Movie":
-				if err := db.InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
+				if err := InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
 					log.Println("Error while inserting new movie:", err)
 					return
 				}
 				log.Println("Added movie:", upload.Title)
 
 			case "Serie":
-				if err := db.InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
+				if err := InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
 					log.Println("Error while inserting new serie:", err)
 					return
 				}
@@ -344,10 +344,10 @@ func UploadHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 }
 
 // Handles "/series"
-func SeriesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+func SeriesHandle(baseTemplate *template.Template) http.HandlerFunc {
 	var series []Serie
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := db.QueryAllFromSeries("select * from series", &series); err != nil {
+		if err := QueryAllFromSeries("select * from series", &series); err != nil {
 			log.Println("Error while handling QueryAllFromSeries:", err)
 		}
 
@@ -362,7 +362,7 @@ func SeriesHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 }
 
 // Handles "/ptw"
-func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
+func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 	var (
 		alertDanger string
 		emptyInputs bool
@@ -389,7 +389,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				emptyInputs = false
 			}
 
-			if err := db.GetPlanToWatch(&sptw); err != nil {
+			if err := GetPlanToWatch(&sptw); err != nil {
 				log.Println("Error while querying ptw:", err)
 				return
 			}
@@ -449,7 +449,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				return
 			}
 
-			if err := db.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
+			if err := InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
 				log.Println("Error while inserting new plan to watch:", err)
 				return
 			}
@@ -478,7 +478,7 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 				return
 			}
 
-			if valid, err = db.DeletePlanToWatch(*deletePtw.Id, "ui"); err != nil {
+			if valid, err = DeletePlanToWatch(*deletePtw.Id, "ui"); err != nil {
 				log.Println("Error while deleting plan to watch (ui):", err)
 				return
 			}
@@ -493,9 +493,3 @@ func PtwHandle(baseTemplate *template.Template, db *Db) http.HandlerFunc {
 		}
 	}
 }
-
-/*
-TODO:
-   - when I try to delete a record I need to F5 in order to update the view (/ptw?11=)
-     - meaning the redirect is not working
-*/

@@ -4,16 +4,6 @@ import (
 	"database/sql"
 )
 
-// Struct that represents a Db
-type Db struct {
-	Location string
-	Type     string
-	Con      *sql.DB
-	Err      error
-	Rows     *sql.Rows
-	Result   sql.Result
-}
-
 // Struct that represents a webpage
 type Page struct {
 	Title  string
@@ -82,3 +72,8 @@ type Ptw struct {
 	Name     string
 	Category Category
 }
+
+var (
+	// DB The database connection
+	dbCon *sql.DB
+)

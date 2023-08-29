@@ -47,12 +47,11 @@ func requestLogger(targetMux http.Handler) http.Handler {
 }
 
 // Starts the web server
-func startServer(currentPath string, databasePath string, debugFlag bool, dbType string) error {
-
-	db := &internal.Db{}
-
-	db.Location = databasePath
-	db.Type = dbType
+func startServer(currentPath string, dbPath string, debugFlag bool, dbType string) error {
+	// initializes db
+	if err := internal.InitDb(dbType, dbPath); err != nil {
+		return err
+	}
 
 	// Handle exit
 	exit := make(chan bool)
@@ -72,14 +71,14 @@ func startServer(currentPath string, databasePath string, debugFlag bool, dbType
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", internal.IndexHandle(baseTemplate))
-	mux.HandleFunc("/upload", internal.UploadHandle(uploadTemplate, db))
+	mux.HandleFunc("/upload", internal.UploadHandle(uploadTemplate))
 
-	mux.HandleFunc("/movies", internal.MoviesHandle(moviesTemplate, db))
-	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate, db))
-	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate, db))
-	mux.HandleFunc("/ptw", internal.PtwHandle(ptwTemplate, db))
+	mux.HandleFunc("/movies", internal.MoviesHandle(moviesTemplate))
+	mux.HandleFunc("/movie", internal.MoviesHandle(movieTemplate))
+	mux.HandleFunc("/series", internal.SeriesHandle(seriesTemplate))
+	mux.HandleFunc("/ptw", internal.PtwHandle(ptwTemplate))
 
-	mux.HandleFunc("/api/ptw", internal.PtwApiHandle(db))
+	//mux.HandleFunc("/api/ptw", internal.PtwApiHandle(db))
 
 	// HTTP Server
 	go func() {

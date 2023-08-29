@@ -25,7 +25,7 @@ func writeJsonResponseToClient(w http.ResponseWriter, statusCode int, status str
 // POST - receives json object and adds to database new entry
 // DELETE - receives json object with id to delete and deletes from the database
 // Handles "/api/ptw"
-func PtwApiHandle(db *Db) http.HandlerFunc {
+func PtwApiHandle() http.HandlerFunc {
 	var (
 		sptw     []Ptw
 		category Category
@@ -38,7 +38,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 
-			if err := db.GetPlanToWatch(&sptw); err != nil {
+			if err := GetPlanToWatch(&sptw); err != nil {
 				log.Println("Error while querying ptw:", err)
 				return
 			}
@@ -81,13 +81,13 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 			}
 
 			// Gets categoryid from name
-			if err := db.GetCategoryId(strings.Title(*ptwTemp.CategoryName), &category); err != nil {
+			if err := GetCategoryId(strings.Title(*ptwTemp.CategoryName), &category); err != nil {
 				log.Println("Error while extracting category name from POST In plan to watch")
 				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while extracting category name")
 				return
 			}
 
-			if err := db.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", *ptwTemp.Name, category.Id); err != nil {
+			if err := InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", *ptwTemp.Name, category.Id); err != nil {
 				log.Println("Error while inserting new plan to watch:", err)
 				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while inserting new plan to watch")
 				return
@@ -120,7 +120,7 @@ func PtwApiHandle(db *Db) http.HandlerFunc {
 				return
 			}
 
-			if valid, err = db.DeletePlanToWatch(*deletePtw.Id, "api"); err != nil {
+			if valid, err = DeletePlanToWatch(*deletePtw.Id, "api"); err != nil {
 				log.Println("Error while deleting plan to watch (api):", err)
 				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while deleting plan to watch")
 				return
