@@ -89,7 +89,7 @@ func PtwApiHandle() http.HandlerFunc {
 				return
 			}
 
-			if err := metandmod.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", *ptwTemp.Name, category.Id); err != nil {
+			if err := metandmod.GenericQuery("inserting plan to watch", "insert into plan_to_watch (name,category_id) VALUES ($1,$2)", *ptwTemp.Name, category.Id); err != nil {
 				log.Println("Error while inserting new plan to watch:", err)
 				writeJsonResponseToClient(w, http.StatusInternalServerError, "Error while inserting new plan to watch")
 				return

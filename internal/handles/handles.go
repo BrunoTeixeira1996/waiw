@@ -169,7 +169,7 @@ func MoviesHandle(baseTemplate *template.Template) http.HandlerFunc {
 				}
 
 				// Insert in database the comments and ratings
-				if err := metandmod.InsertMovieComments("insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
+				if err := metandmod.GenericQuery("inserting movie comments", "insert into movie_ratings (movie_id, user_id, rating_id, comments) VALUES ($1,$2,$3,$4)", movieId, user.Id, choosenRating, comments); err != nil {
 					log.Println("Error while inserting movie comment:", err)
 					return
 				}
@@ -320,14 +320,14 @@ func UploadHandle(baseTemplate *template.Template) http.HandlerFunc {
 
 			switch upload.Category {
 			case "Movie":
-				if err := metandmod.InsertNewEntry("insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
+				if err := metandmod.GenericQuery("inserting new movie", "insert into movies (title, image, sinopse, genre, imdb_rating, launch_date, view_date) VALUES ($1,$2,$3,$4,$5,$6,$7)", upload.Title, upload.Image, upload.Sinopse, upload.Genre, upload.Imdb_Rating, upload.Launch_Date, upload.View_Date); err != nil {
 					log.Println("Error while inserting new movie:", err)
 					return
 				}
 				log.Println("Added movie:", upload.Title)
 
 			case "Serie":
-				if err := metandmod.InsertNewEntry("insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
+				if err := metandmod.GenericQuery("inserting new serie", "insert into series (title, image, genre, imdb_rating, launch_date) VALUES ($1,$2,$3,$4,$5)", upload.Title, upload.Image, upload.Genre, upload.Imdb_Rating, upload.Launch_Date); err != nil {
 					log.Println("Error while inserting new serie:", err)
 					return
 				}
@@ -451,7 +451,7 @@ func PtwHandle(baseTemplate *template.Template) http.HandlerFunc {
 				return
 			}
 
-			if err := metandmod.InsertPlanToWatch("insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
+			if err := metandmod.GenericQuery("inserting plan to watch", "insert into plan_to_watch (name,category_id) VALUES ($1,$2)", ptwname, categoryId[0]); err != nil {
 				log.Println("Error while inserting new plan to watch:", err)
 				return
 			}

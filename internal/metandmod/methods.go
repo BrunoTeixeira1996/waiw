@@ -179,18 +179,9 @@ func SetUser(q string, username string, user *User) error {
 	return nil
 }
 
-// Insert comments into a movie
-func InsertMovieComments(q string, params ...any) error {
+func GenericQuery(action string, q string, params ...any) error {
 	if _, err := dbCon.Exec(q, params...); err != nil {
-		return fmt.Errorf("Error while inserting comment in movie: %w", err)
-	}
-	return nil
-}
-
-// Insert new entry (movie,serie or anime)
-func InsertNewEntry(q string, params ...any) error {
-	if _, err := dbCon.Exec(q, params...); err != nil {
-		return fmt.Errorf("Error while inserting a new movie: %w", err)
+		return fmt.Errorf("Error while %s: %w", action, err)
 	}
 	return nil
 }
@@ -260,13 +251,6 @@ func GetPlanToWatch(sptw *[]Ptw) error {
 		*sptw = append(*sptw, ptw)
 	}
 
-	return nil
-}
-
-func InsertPlanToWatch(q string, params ...any) error {
-	if _, err := dbCon.Exec(q, params...); err != nil {
-		return fmt.Errorf("Error while inserting a new plan to watch: %w", err)
-	}
 	return nil
 }
 
